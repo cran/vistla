@@ -1,4 +1,4 @@
-a34dfe323e169ee2f7c94e12c81843da *DESCRIPTION
+4bc26e7bb68dc95ba085a6a498dd72ff *DESCRIPTION
 db383719365dbcef19a2f34cb9f373d7 *NAMESPACE
 fdf65e2dfb20ac034c611ce08bb16b0c *R/agreement.R
 12713c8fca1517b9b1f61cc950ab83fb *R/data.R
@@ -12,6 +12,7 @@ f4abfff844aec4318a4fe7e51e63b48e *R/tools.R
 13d23444141dab9dd96fbff8d4737760 *R/vistla.R
 567bf226a991024b38c506286469d7dd *data/chain.rda
 02028e09561b5ec14446eb9d3c578965 *data/junction.rda
+944764432d05f6cb671256b0c3b481a7 *inst/NEWS
 3e2ded8e1bd29f98e3bdb064b4f51166 *man/agreement.Rd
 5bc5f711a7cf7f33326989612716a988 *man/branches.Rd
 388bcbcee10a380f2986056cb9d1c77a *man/chain.Rd
@@ -32,7 +33,7 @@ f70ca0bed623590bd6cfb1eab8f98aae *man/vistla_coerce.Rd
 9757b50ebb8d9655fc720d020dd8cd1f *src/ht.h
 97466f4522fddd730c81e6d70cd2880a *src/shared.h
 dc18d003eca4a7cda1c3c000990706e4 *src/vistla.c
-f3bd2b97fdbe2b86f25c0843471c09bd *src/vistla.h
+dba295fc86040fd8cbd9f40597fe2a0d *src/vistla.h
 d8933a3655a1ed71accb896daa5b9ca9 *tests/testthat.R
 5678cef0a11bd9f9f1e70cc5ddfdc049 *tests/testthat/test-algo.R
 5a8dafdc50c341e929fbb7d0451241d0 *tests/testthat/test-engine.R

@@ -272,6 +272,7 @@ SEXP C_vistla(SEXP X,SEXP Y,SEXP Flow,SEXP Threshold,SEXP Targets,SEXP Verbose,S
  //We have our result, but time to convert S, P and si tables into a tree
  
  //This is needed here because this is the first place we know the size (bc)
+ SEXP Tree=PROTECT(allocVector(VECSXP,8));
  SEXP TreeA=PROTECT(allocVector(INTSXP,bc));
  SEXP TreeB=PROTECT(allocVector(INTSXP,bc));
  SEXP TreeC=PROTECT(allocVector(INTSXP,bc));
@@ -280,7 +281,6 @@ SEXP C_vistla(SEXP X,SEXP Y,SEXP Flow,SEXP Threshold,SEXP Targets,SEXP Verbose,S
  SEXP TreeDepth=PROTECT(allocVector(INTSXP,bc));
  SEXP TreeLeaf=PROTECT(allocVector(LGLSXP,bc));
  SEXP TreeUsed=PROTECT(allocVector(LGLSXP,bc));
- SEXP Tree=PROTECT(allocVector(VECSXP,8));
  SET_VECTOR_ELT(Tree,0,TreeA);
  SET_VECTOR_ELT(Tree,1,TreeB);
  SET_VECTOR_ELT(Tree,2,TreeC);
