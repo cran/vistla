@@ -46,7 +46,8 @@ prune_targets<-function(x,ti){
   unique(to_keep[!is.na(to_keep)])->to_keep
  }
  x$tree<-subset_tree(tree,keep)
- x$tree$used<-TRUE
+ if(nrow(x$tree)>0)
+  x$tree$used<-TRUE
  if(!missing(ti)) x$targets<-ti
  x
 }

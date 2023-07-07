@@ -1,11 +1,22 @@
 /*  128  64  32  16   8   4   2   1  *
- * |res|res|res|res|hld|hlu|fwd|bkw| */
+ * |res|res|res|roa|hld|hlu|fwd|bkw| */
 enum flow{
  backward=1, 
  forward=2, 
  hilldown=8,
- hillup=4
+ hillup=4,
+ noroam=16
 };
+
+enum flow verify_flow(u32 x){
+ if(x>31) error("Wrong value of the flow");
+ if((x&hillup)&&(x&hilldown)) error("Cannot hill up and down at the same time");
+ if(((x&hillup)|(x&hilldown))&(x&noroam)){
+  warning("Force-path is redundant with up/down.");
+  x&=(!noroam);
+ }
+ return(x);
+}
 
 SEXP C_vistla(SEXP X,SEXP Y,SEXP Flow,SEXP Threshold,SEXP Targets,SEXP Verbose,SEXP Threads){
  if(!isFrame(X)) error("X has to be a data.frame");
@@ -52,20 +63,8 @@ SEXP C_vistla(SEXP X,SEXP Y,SEXP Flow,SEXP Threshold,SEXP Targets,SEXP Verbose,S
   ntargets=m;
  }
 
- enum flow flow;
- switch(asInteger(Flow)){
-  case 0: flow=0; break;
-  case 1: flow=backward; break;
-  case 2: flow=forward; break;
-  case 3: flow=backward|forward; break;
-  case 10: flow=forward|hilldown; break;
-  case 5: flow=backward|hillup; break;
-  case 4: flow=hillup; break;
-  case 8: flow=hilldown; break;
-         
-  default: error("Unknown value of flow!");
- }
-
+ enum flow flow=verify_flow(asInteger(Flow));
+ 
  if(verbose) Rprintf("Coercing input\n");
 
  for(int e=0;e<m;e++){
@@ -163,12 +162,9 @@ SEXP C_vistla(SEXP X,SEXP Y,SEXP Flow,SEXP Threshold,SEXP Targets,SEXP Verbose,S
   }
 
  }
-
  for(u32 e=0;e<m;e++)
   for(u32 ee=0;ee<e;ee++) if(e!=ee) S[ee+e*m]+=miY[ee];
   
- 
-
  struct heap *queue=R_allocHeap(m*m);
  
  //Set-up S for the depth-1 scores (all threes involving Y)
@@ -195,14 +191,22 @@ SEXP C_vistla(SEXP X,SEXP Y,SEXP Flow,SEXP Threshold,SEXP Targets,SEXP Verbose,S
 
  if(verbose) Rprintf("Looking for optimal paths\n");
 
- //TODO: You can probably re-use something here...
- u32 *xab=(u32*)R_alloc(sizeof(u32),n),
-     *cXc=(u32*)R_alloc(sizeof(u32),n),
-     *cXab=(u32*)R_alloc(sizeof(u32),n),
+ //Re-using some memory
+ u32 *xab=xeys,//(u32*)R_alloc(sizeof(u32),n),
+     *cXc=cYs,//(u32*)R_alloc(sizeof(u32),n),
+     *cXab=cXes,//(u32*)R_alloc(sizeof(u32),n),
      *si=(u32*)R_alloc(sizeof(u32),m*m), //Sorted index for answer
      bc=0; //Number of branches in answer, final size of si
  while(heapLen(queue)){
-  //Queue head is not accepted as a branch and added to the output
+  //Check if heap is tied, mix the tip if so
+  if(isTied(queue,S)){
+   if(verbose) Rprintf("Tie detected, breaking at random\n");
+   GetRNGstate();
+   breakTie(queue,S);
+   PutRNGstate();
+  }
+  
+  //Queue head is now accepted as a branch and added to the output
   u32 idx=pop(queue,S);
   v[idx]=true;
   si[bc]=idx;
@@ -224,9 +228,9 @@ SEXP C_vistla(SEXP X,SEXP Y,SEXP Flow,SEXP Threshold,SEXP Targets,SEXP Verbose,S
   }
   
   //Time to investigate its sub-branches; to this end, we
-  // re-create a-b mixture
-  u32 nxab=fillHt(*ht,n,nx[a],x[a],nx[b],x[b],xab,NULL,NULL,1);
-
+  //will need to re-create the a-b mixture. But lazily,
+  //maybe it won't be necessary.
+  u32 nxab=0;
 
   for(int c=0;c<m;c++) if((c!=a) && (c!=b)){
    //Do not re-visit
@@ -240,9 +244,33 @@ SEXP C_vistla(SEXP X,SEXP Y,SEXP Flow,SEXP Threshold,SEXP Targets,SEXP Verbose,S
    if((flow&hilldown) && !(miY[b]>miY[c])) continue;
    if((flow&hillup) && !(mi[c+b*m]>miY[c])) continue;
 
+   //Chek the no-roam (no sense with hill present)
+   if(flow&noroam){
+    u32 haveToBackOff=0;
+    u32 back_bc=P[a+b*m];
+    u32 cnt=10;
+    while(back_bc!=NA_INTEGER){
+     cnt--;
+     if(cnt<1) break;
+     u32 back_si=si[back_bc-1];
+     u32 pa=back_si%m,
+         pb=back_si/m;
+     if(pa==c || pb==c){
+      haveToBackOff=1;
+      break;
+     }
+     back_bc=P[pa+pb*m];
+    }
+    if(haveToBackOff) continue;
+   }
+
    //Start calculating new score
    double nS=mi[a+c*m]+mi[b+c*m];
    if((nS<=iomin) || (nS<=S[b+c*m])) continue; //Checks for immediate back-off
+   if(!nxab){
+    //Also generatex xab
+    nxab=fillHt(*ht,n,nx[a],x[a],nx[b],x[b],xab,NULL,NULL,1);
+   }
    fillHt(*ht,n,nx[c],x[c],nxab,xab,NULL,cXc,cXab,0);
    nS-=miHt(*ht,cXc,cXab);
 
@@ -334,7 +362,6 @@ SEXP C_vistla(SEXP X,SEXP Y,SEXP Flow,SEXP Threshold,SEXP Targets,SEXP Verbose,S
  
  SET_VECTOR_ELT(Ans,0,Tree);
  UNPROTECT(1); //Tree
-
 
  UNPROTECT(1); //Ans
  return(Ans);

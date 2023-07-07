@@ -10,7 +10,7 @@ mi_scores(x)
 \item{x}{vistla object.}
 }
 \value{
-A symmetic square matrix with mutual information scores between features and root.
+A symmetric square matrix with mutual information scores between features and root.
 }
 \description{
 Produces a matrix \eqn{S} where \eqn{S_{ij}} is a 

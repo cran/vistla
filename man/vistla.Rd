@@ -11,17 +11,7 @@ vistla(x, ...)
 
 \method{vistla}{formula}(formula, data, ..., yn)
 
-\method{vistla}{data.frame}(
-  x,
-  y,
-  ...,
-  flow = c("fromdown", "intoup", "both", "spread", "from", "into", "up", "down"),
-  iomin = 0,
-  targets,
-  verbose = FALSE,
-  yn = "Y",
-  threads = 0L
-)
+\method{vistla}{data.frame}(x, y, ..., flow, iomin, targets, verbose = FALSE, yn = "Y", threads)
 
 \method{vistla}{default}(x, ...)
 }
@@ -54,7 +44,7 @@ The same effect can be later achieved with the \code{\link{prune}} function.}
 \item{verbose}{when set to \code{TRUE}, turns on reporting of the algorithm progress.}
 
 \item{threads}{number of threads to use. 
-Value of 0 indicates all available for OpenMP.}
+When missing or set to 0, uses all available cores.}
 }
 \value{
 The tracing results represented as an object of a class \code{vistla}.

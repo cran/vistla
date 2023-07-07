@@ -1,3 +1,5 @@
+#include <stdint.h>
+
 struct heap {
  u32 *queue;
  u32 *map;
@@ -22,6 +24,8 @@ static inline u32 childA(u32 e){
  return(2*e+1);
 }
 
+//NOTE: Only for cB>bA tie breaking
+// algorithm is corrct.
 static inline u32 childB(u32 e){
  return(2*e+2);
 }
@@ -37,8 +41,14 @@ static inline void swap(struct heap *h,u32 a,u32 b){
  h->queue[a]=ib;
 }
 
+static inline bool cmp(struct heap *h,u32 a,u32 b,double *score){
+ double sa=score[h->queue[a]];
+ double sb=score[h->queue[b]];
+ return(sa>sb);
+}
+
 void swim(struct heap *h,u32 e,double *score){
- while(e>0 && score[h->queue[e]]>score[h->queue[parent(e)]]){
+ while(e>0 && cmp(h,e,parent(e),score)){
   swap(h,e,parent(e));
   e=parent(e);
  }
@@ -49,8 +59,8 @@ void sink(struct heap *h,u32 e,double *score){
   u32 max=e;
   u32 a=childA(e);
   u32 b=childB(e);
-  if((a<h->end) && (score[h->queue[a]]>score[h->queue[max]])) max=a;
-  if((b<h->end) && (score[h->queue[b]]>score[h->queue[max]])) max=b;
+  if((a<h->end) && cmp(h,a,max,score)) max=a;
+  if((b<h->end) && cmp(h,b,max,score)) max=b;
 
   if(max==e) break;
   swap(h,max,e);
@@ -96,6 +106,36 @@ u32 pop(struct heap *h,double *score){
  sink(h,0,score);
  h->map[ans]=NA_INTEGER;
  return(ans);
+}
+
+u32 selTied(struct heap *h,double *score){
+ double rs=score[h->queue[0]];
+ double tag=-1.;
+ u32 sel=0;
+ u32 lasttie=0;
+ for(u32 e=1;e<h->end && e<=childB(lasttie);e++)
+  if(score[h->queue[e]]==rs){
+   lasttie=e;
+   double newtag=unif_rand();
+   if(newtag>tag){
+    tag=newtag;
+    sel=e;
+   }
+  }
+ 
+ return(sel);
+}
+
+bool isTied(struct heap *h,double *score){
+ double rs=score[h->queue[0]];
+ return(
+  ((1<h->end) && (score[h->queue[1]]==rs)) ||
+  ((2<h->end) && (score[h->queue[2]]==rs))
+ );
+}
+
+void breakTie(struct heap *h,double *score){
+ swap(h,0,selTied(h,score));
 }
 
 bool integrity_test(struct heap *h,double *score){

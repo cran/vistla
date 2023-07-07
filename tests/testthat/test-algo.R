@@ -110,7 +110,7 @@ test_that("vistla works on iris data",{
  verify_tree(hierarchy(ans))
  organise_plot(ans)->xp
  expect_equal(xp$prv,c(NA,1,2,3,1,5))
- expect_equal(xp$y,c(0.5,1,1,1,0,0))
+ expect_equal(xp$y,c(0,.5,.5,.5,-.5,-.5))
 })
 
 test_that("vistla works properly with prune",{
@@ -183,4 +183,17 @@ test_that("printing works on chain",{
 test_that("vistla rejects bad input class",{
  expect_error(vistla(list()),"Expecting a formula or a data.frame as an input, got list")
  expect_error(vistla(matrix(1:12,4)),"Expecting a formula or a data.frame as an input, got matrix/array")
+})
+
+test_that("flow works",{
+ expect_error(flow("eee"))
+ expect_error(flow(pi))
+ expect_output(print(flow(from=TRUE,into=TRUE,down=FALSE,up=FALSE,forcepath=TRUE)),"both!")
+ expect_output(print(flow("from",from=FALSE)),"from") #code overrides
+ expect_output(print(flow(6L)),"intoup")
+})
+
+test_that("targets are robust",{
+ a<-vistla(A1~.,data=junction,targets="B1")
+ expect_output(print(a),"No paths")
 })

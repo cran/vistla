@@ -36,7 +36,7 @@ When functions are called, the Y-vertex is not present.}
 For a missing \code{con} argument, a character vector with the graph in the DOT format, invisible \code{NULL} otherwise.
 }
 \description{
-Exports the vistla tree in a DOT format, which can be later layouted and rendered by Graphiviz programs like dot or neato.
+Exports the vistla tree in a DOT format, which can be later layouted and rendered by Graphviz programs like dot or neato.
 }
 \note{
 Graphviz attribute values can be either strings, like \code{"some vertex"} in \code{label}, or atoms, like \code{box} for \code{shape}.

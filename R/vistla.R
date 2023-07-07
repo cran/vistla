@@ -36,23 +36,29 @@ vistla.formula<-function(formula,data,...,yn){
 #' @param verbose when set to \code{TRUE}, turns on reporting of the algorithm progress.
 #' @param yn name of the root (\code{Y} value), used in result pretty-printing and plots. Must be a single-element character vector.
 #' @param threads number of threads to use. 
-#'  Value of 0 indicates all available for OpenMP.
+#'  When missing or set to 0, uses all available cores.
 #' @param ... pass-through arguments, ignored.
 #' @return The tracing results represented as an object of a class \code{vistla}.
 #'  Use \code{\link{paths}} and \code{\link{path_to}} functions to extract individual paths,
 #'  \code{\link{branches}} to get the whole tree and \code{\link{mi_scores}} to get the basic score matrix.
 #' @method vistla data.frame
 #' @export
-vistla.data.frame<-function(x,y,...,flow=c("fromdown","intoup","both","spread","from","into","up","down"),iomin=0,targets,verbose=FALSE,yn="Y",threads=0L){
+vistla.data.frame<-function(x,y,...,flow,iomin,targets,verbose=FALSE,yn="Y",threads){
+
+ #Encode targets
  if(missing(targets)){
   targets<-integer(0)
  }else{
   targets<-unique(match(targets,names(x)))
   if(any(is.na(targets))) stop("Unknown variables specified as targets")
  }
+ if(missing(flow)) flow<-1L+8L
+ if(is.character(flow)) flow<-vistla::flow(flow)
+ if(missing(iomin)) iomin<-0
+ if(missing(threads)) threads<-0L
  ans<-.Call(
   C_vistla,x,y,
-  flow=switch(match.arg(flow),from=2L,into=1L,both=3L,spread=0L,fromdown=2L+8L,intoup=1L+4L,up=4L,down=8L),
+  flow=as.integer(flow)[1],
   iomin,targets,verbose,
   as.integer(threads)
  )
@@ -69,6 +75,68 @@ vistla.data.frame<-function(x,y,...,flow=c("fromdown","intoup","both","spread","
  class(ans)<-"vistla"
  ans
 }
+
+#' Construct the value for the flow
+#'
+#' Vistla builds the tree by optimising the influence score over path, which is given by the iota function.
+#' The \code{flow} argument of the vistla function can be used to modify the default iota and some associated behaviours.
+#' This function can be used to construct the proper value of this argument.
+#' @param code Character code of the flow parameter, like \code{"fromdown"}. 
+#'  If given, overrides other arguments.
+#' @param from if \code{TRUE}, paths must satisfy data processing inequality as going from the root.
+#' @param into if \code{TRUE}, paths must satisfy data processing inequality as going into the root.
+#' @param down if \code{TRUE}, subsequent features on the path must have lower mutual information with the root; by default, true when \code{from} is true but if both \code{from} and \code{into} are true.
+#' Can't be true together with \code{up}.
+#' @param up if \code{TRUE}, subsequent features on the path must have higher mutual information with the root; by default, true when \code{into} is true but if both \code{from} and \code{into} are true.
+#' Can't be true together with \code{down}.
+#' @param forcepath when neither \code{up} or \code{down} is true, vistla may output walks rather than paths, i.e., sequences of features which are not unique.
+#' Yet, when this argument is set to \code{TRUE}, additional condition is checked to forbid such self-intersections.
+#' One should note that this check is computationally expensive, though.
+#' By default true when both \code{up} and \code{down} are false.
+#' @param ... ignored.
+#' @return A \code{vistla_flow} object which can be passed to the \code{vistla} function; 
+#'  in practice, a single integer value.
+#' @export
+flow<-function(code,...,from=TRUE,into=FALSE,down,up,forcepath){
+ codes<-c('from'=1L,'from!'=17L,'into'=2L,'into!'=18L,'spread'=0L,'spread!'=16L,
+  'fromdown'=1L+8L,'both'=3L,'both!'=3L+16L,'intoup'=2L+4L,'down'=8L,'up'=4L)
+ if(!missing(code)){
+  ans<-if(is.integer(code)) code else {
+   if(is.character(code)){
+    codes[code]
+   }else stop("Wrong value of code ")
+  }
+  if(!is.integer(ans) || is.na(ans)) stop("Unknown code ",code)
+ }else{
+  if(missing(down)) down<-from & !into
+  if(missing(up)) up<-into & !from
+  if(missing(forcepath)) forcepath<-!up & !down
+  ans<-as.integer(sum(
+   c(from,into,up,down,forcepath)*
+   2^(0:4)
+  ))
+ }
+ class(ans)<-"vistla_flow"
+ ans
+}
+
+#' @rdname flow
+#' @method print vistla_flow
+#' @param x flow value to print.
+#' @export
+print.vistla_flow<-function(x,...){
+ cat(paste(
+  "Vistla flow: ",
+  c("spread","from","into","both")[bitwAnd(x,3L)+1],
+  ifelse(bitwAnd(x,4L)>0,"up",""),
+  ifelse(bitwAnd(x,8L)>0,"down",""),
+  ifelse(bitwAnd(x,16L)>0,"!",""),
+  "\n",
+  sep=""))
+ invisible(x)
+}
+
+
 
 #' @rdname vistla
 #' @method vistla default

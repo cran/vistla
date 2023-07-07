@@ -102,7 +102,7 @@ print.vistla_hierarchy<-function(x,...){
 #' This matrix is always calculated as an initial step of the
 #'  vistla algorithm and stored in the vistla object.
 #' @param x vistla object.
-#' @return A symmetic square matrix with mutual information scores between features and root.
+#' @return A symmetric square matrix with mutual information scores between features and root.
 #' @export
 mi_scores<-function(x){
  stopifnot(inherits(x,"vistla"))

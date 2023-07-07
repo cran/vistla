@@ -61,6 +61,14 @@ test_that("Prune works",{
   min(prune(v,iomin=0.3)$tree$score),
   0.3
  )
+ expect_equal(
+  nrow(hierarchy(prune(v,iomin=100))),
+  1
+ )
+ expect_equal(
+  nrow(hierarchy(prune(v,targets=c()))),
+  1
+ )
 })
 
 test_that("Prune reports errors",{
@@ -82,4 +90,24 @@ test_that("Agreement works",{
  agreement(list(v1=va,v2=vb,v3=va)->s)->r
  expect_equal(r,matrix(rep(1,9),3,dimnames=list(names(s),names(s))))
  expect_equal(names(agreement(s,raw=TRUE)),c("a","b","c",names(s)))
+})
+
+synth_tree<-data.frame(
+ name=sprintf("v%d",1:15),
+ prv=c(NA,1,2,3,3,2,6,6,1,9,10,10,9,13,13),
+ depth=c(-1,0,1,2,2,1,2,2,0,1,2,2,1,2,2),
+ score=15:1,
+ leaf=  c(F,T,T,T,T,T,T,T,T,T,T,T,T,T,T)
+)
+class(synth_tree)<-c("vistla_hierarchy",class(synth_tree))
+ 
+test_that("TreeLayout works",{
+ organise_plot(synth_tree)->st
+ expect_equal(st$y,c(0,2,3,3.5,2.5,1,1.5,0.5,-2,-1,
+  -0.5,-1.5,-3,-2.5,-3.5))
+})
+
+test_that("Plot doesn't error",{
+ plot(synth_tree,circular=TRUE)->L
+ expect_true(inherits(L,"gTree"))
 })

@@ -3,7 +3,7 @@
 #' Gives access to a list of all branches in the tree.
 #' @param x vistla object.
 #' @param suboptimal if TRUE, sub-optimal branches are included.
-#' @note Pruned trees (obatined with \code{\link{prune}} and using \code{targets} argument
+#' @note Pruned trees (obtained with \code{\link{prune}} and using \code{targets} argument
 #'  in the \code{\link{vistla}} call) have no suboptimal branches.
 #' @return A data frame collecting all branches traced by vistla.
 #'  Each row corresponds to a single branch, i.e., edge between feature pairs.

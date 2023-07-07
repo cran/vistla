@@ -1,3 +1,8 @@
+Changes in 1.1.0:
+ - Random tie breaking.
+ - Grid-based plot with improved layout.
+ - More verbose flow control.
+
 Changes in 1.0.1:
  - PROTECT order bug fixed.
 

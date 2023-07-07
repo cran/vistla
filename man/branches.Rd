@@ -39,6 +39,6 @@ A data frame collecting all branches traced by vistla.
 Gives access to a list of all branches in the tree.
 }
 \note{
-Pruned trees (obatined with \code{\link{prune}} and using \code{targets} argument
+Pruned trees (obtained with \code{\link{prune}} and using \code{targets} argument
  in the \code{\link{vistla}} call) have no suboptimal branches.
 }

@@ -2,20 +2,75 @@
 % Please edit documentation in R/plot.R
 \name{plot.vistla}
 \alias{plot.vistla}
+\alias{plot.vistla_plot}
+\alias{print.vistla_plot}
 \title{Overview plot of the vistla tree}
 \usage{
-\method{plot}{vistla}(x, ..., scale_width = TRUE)
+\method{plot}{vistla}(
+  x,
+  ...,
+  slant,
+  circular,
+  asp1 = FALSE,
+  pmar = c(0.05, 0.05, 0.05, 0.05),
+  edge_col = 1,
+  edge_lwd = "scale",
+  edge_lty = 1,
+  label_text = function(x) x$name,
+  label_border_col = 1,
+  label_border_lty = function(x) ifelse(x$leaf, 1, 2),
+  label_fill = "white"
+)
+
+\method{plot}{vistla_plot}(x, ...)
+
+\method{print}{vistla_plot}(x, ...)
 }
 \arguments{
-\item{x}{vistla object.}
+\item{x}{vistla, vistla hierarchy or vistla plot object.}
 
-\item{...}{additional graphical parameters, passed to plot.}
+\item{...}{ignored.}
 
-\item{scale_width}{if \code{TRUE}, widths of links are scaled according to score.}
+\item{slant}{arrange vertices in a slanted way. 
+Can be given as a number, possibly negative, indicating the amount of slant, or as \code{TRUE}, for an auto value.
+No slant is applied when set to 0 or omitted.}
+
+\item{circular}{if given \code{TRUE}, switches to circular layout; alternatively, can be given two numbers, then the first one will be interpreted as an angle to fit the whole graph in (\code{2*pi} when using \code{TRUE}), and the second one as an initial angle offset (0 when using \code{TRUE}), which can be used to rotate the whole graph around the root.
+Both angles are expected to be in radians.
+It is recommended to add \code{asp=TRUE} parameter to make this layout truly circular, otherwise lines of equal depth are going to be elliptical.
+ When \code{FALSE}, linear layout is enforced.}
+
+\item{asp1}{if \code{TRUE}, scales on both axes are the same, like with \code{asp=1} in base graphics.}
+
+\item{pmar}{Specifies margins as a fraction of graph size; expects a 4-element vector, in standard R bottom-left-top-right order.}
+
+\item{edge_col}{edge colour; can be given as vector, then mapping order adheres to the one in hierarchy object; please note that the edge towards first feature, the root, is not drawn, so the first element is effectively ignored.
+If given as a function, it is called on the internally generated extended hierarchy object, and the result is used as an aesthetic.}
+
+\item{edge_lwd}{edge width; behaves similarly to \code{edge_col}, yet also accepts special value \code{'scale'}, which triggers default scaling of edge width to be proportional to score.}
+
+\item{edge_lty}{edge line-type; behaves similarly to \code{edge_col}.}
+
+\item{label_text}{vertex label text, feature name by default.
+Behaves similarly to \code{edge_col}.}
+
+\item{label_border_col}{vertex label border colour; behaves similarly to \code{edge_col}, can be set to 0 for no border.}
+
+\item{label_border_lty}{vertex label border line-type; behaves similarly to \code{edge_col}, can be set to 0 for no border.}
+
+\item{label_fill}{vertex label fill colour; behaves similarly to \code{edge_col}, can be set to 0 for no fill.}
 }
 \value{
-\code{x}, invisibly.
+Grid object with the graph.
 }
 \description{
-Overview plot of the vistla tree
+Plots a vistla tree, using layout derived by a Buchheim et al. extension of the standard Reingold-Tilford method.
+The tree root is placed on the left, while the paths extend to the right, with all branches of the same depth at the same horizontal coordinate.
+The path are sorted vertically, from strongest on top to weakest on the bottom.
+Link weight indicates, by default, the link's score.
+A feature name in parentheses indicates that is is only a way-point in a path to some other feature.
+}
+\note{
+The graph is rendered using the grid graphics system, in a manner similar to \code{ggplot2}; the output of the \code{plot.vistla} function is only a grid graphical object, while the actual plotting is done when this object is printed or plotted.
+Yet, said object can be used with other functions in the grid ecosystem for rendering into files, being edited, combined with other plots, etc.
 }

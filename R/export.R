@@ -1,6 +1,6 @@
 #' Export tree to a Graphviz DOT format
 #'
-#' Exports the vistla tree in a DOT format, which can be later layouted and rendered by Graphiviz programs like dot or neato.
+#' Exports the vistla tree in a DOT format, which can be later layouted and rendered by Graphviz programs like dot or neato.
 #' @param x vistla object.
 #' @param con connection; passed to \code{writeLines}.
 #'  If missing, the DOT code is returned as a character vector.
