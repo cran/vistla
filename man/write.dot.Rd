@@ -47,3 +47,6 @@ Graphviz attribute values can be either strings, like \code{"some vertex"} in \c
 
  The function does no validation whether provided attributes or values are correct.
 }
+\references{
+"An open graph visualization system and its applications to software engineering" E.R. Gansner, S.C. North. Software: Practice and Experience 30:1203-1233 (2000).
+}

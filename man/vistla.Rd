@@ -11,7 +11,18 @@ vistla(x, ...)
 
 \method{vistla}{formula}(formula, data, ..., yn)
 
-\method{vistla}{data.frame}(x, y, ..., flow, iomin, targets, verbose = FALSE, yn = "Y", threads)
+\method{vistla}{data.frame}(
+  x,
+  y,
+  ...,
+  flow,
+  iomin,
+  targets,
+  estimator = c("mle", "kt"),
+  verbose = FALSE,
+  yn = "Y",
+  threads
+)
 
 \method{vistla}{default}(x, ...)
 }
@@ -27,24 +38,32 @@ When present in \code{data}, response is getting omitted from predictors.}
 
 \item{data}{\code{data.frame} in context of which the formula will be executed; can be omitted when not using \code{.}.}
 
-\item{yn}{name of the root (\code{Y} value), used in result pretty-printing and plots. Must be a single-element character vector.}
+\item{yn}{name of the root (\code{Y} value), used in result pretty-printing and plots. 
+Must be a single-element character vector.}
 
 \item{y}{vistla tree root, a feature from which influence paths will be traced.}
 
-\item{flow}{algorithm mode, specifying the iota function which gives local score to an edge of an edge graph. If in doubt, use the default, \code{"fromdown"}.}
+\item{flow}{algorithm mode, specifying the iota function which gives local score to an edge of an edge graph. 
+If in doubt, use the default, \code{"fromdown"}.}
 
-\item{iomin}{score threshold below which path is not considered further. The higher value the less paths are generated, which also lowers the time taken by the function.
+\item{iomin}{score threshold below which path is not considered further. 
+The higher value the less paths are generated, which also lowers the time taken by the function.
 The default value of 0 turns of this filtering.
 The same effect can be later achieved with the \code{\link{prune}} function.}
 
 \item{targets}{a vector of target feature names.
 If given, the algorithm will stop just after reaching the last of them, rather than after tracing all paths from the root.
-The same effect can be later achieved with the \code{\link{prune}} function.}
+The same effect can be later achieved with the \code{\link{prune}} function.
+This is a simple method to remove irrelevant paths, yet it comes with a substantial increase in computational burden.}
+
+\item{estimator}{mutual information estimator to use.
+\code{"mle"} --- maximal likelihood, requires all features to be discrete (factors or booleans).
+\code{"kt"} --- Kendall transformation, requires all features to be either ordinal (numeric, integer or ordered factor) or bi-valued (two-level factors or booleans).}
 
 \item{verbose}{when set to \code{TRUE}, turns on reporting of the algorithm progress.}
 
 \item{threads}{number of threads to use. 
-When missing or set to 0, uses all available cores.}
+When missing or set to 0, vistla uses all available cores.}
 }
 \value{
 The tracing results represented as an object of a class \code{vistla}.
@@ -53,4 +72,7 @@ The tracing results represented as an object of a class \code{vistla}.
 }
 \description{
 Detects influence paths.
+}
+\references{
+"Kendall transformation brings a robust categorical representation of ordinal data" M.B. Kursa. SciRep 12, 8341 (2022).
 }

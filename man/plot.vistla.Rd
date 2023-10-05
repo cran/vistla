@@ -74,3 +74,6 @@ A feature name in parentheses indicates that is is only a way-point in a path to
 The graph is rendered using the grid graphics system, in a manner similar to \code{ggplot2}; the output of the \code{plot.vistla} function is only a grid graphical object, while the actual plotting is done when this object is printed or plotted.
 Yet, said object can be used with other functions in the grid ecosystem for rendering into files, being edited, combined with other plots, etc.
 }
+\references{
+"Drawing rooted trees in linear time" C. Buchheim, M. Jünger, S. Leipert. Software: Practice and Experience 36(6):651-665 (2006).
+}

@@ -30,6 +30,10 @@ typedef uint32_t u32;
 
 #include "shared.h"
 
+//Input conversion
+
+#include "convert.h"
+
 //Algorithm
 
 #include "vistla.h"
@@ -39,8 +43,9 @@ typedef uint32_t u32;
 #define CALLDEF(name, n)  {#name, (DL_FUNC) &name, n}
 static const R_CallMethodDef R_CallDef[]={
  CALLDEF(C_heapTest,3),
- CALLDEF(C_convert,1),
- CALLDEF(C_vistla,7),
+ CALLDEF(C_heapTiedTest,2),
+ CALLDEF(C_convertTest,2),
+ CALLDEF(C_vistla,8),
  {NULL,NULL,0}
 };
 

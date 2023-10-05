@@ -5,7 +5,7 @@
 \alias{chain}
 \title{Synthetic data representing a simple mediator chain}
 \format{
-A data set with six columns, each is a factor of two levels.
+A data set with six binary factor columns.
 }
 \usage{
 data(chain)

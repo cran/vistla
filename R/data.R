@@ -4,9 +4,18 @@
 #' \deqn{X\rightarrow M_1 \rightarrow M_2  \rightarrow M_3  \rightarrow M_4  \rightarrow Y}
 #' where every variable is binary.
 #' The set consists of 11 observations, and is tuned to be easily deciphered.
-#' @format A data set with six columns, each is a factor of two levels.
+#' @format A data set with six binary factor columns.
 #' @usage data(chain)
 "chain"
+
+#' Synthetic continuous data representing a simple mediator chain
+#'
+#' Chain is generated from an uniform variable X by progressively adding gaussian noise, producing a mediator chain identical to this of the \code{\link{chain}} data, i.e.,
+#' \deqn{X\rightarrow M_1 \rightarrow M_2  \rightarrow M_3  \rightarrow M_4  \rightarrow Y}
+#' The set consists of 20 observations, and is tuned to be easily deciphered.
+#' @format A data set with six numerical columns.
+#' @usage data(cchain)
+"cchain"
 
 #' Synthetic data representing a junction
 #'
@@ -15,7 +24,7 @@
 #' \eqn{B_1\rightarrow X \rightarrow B_2,}
 #' while \eqn{X} is the junction.
 #' The set consists of 12 observations, and is tuned to be easily deciphered.
-#' @format A data set with five columns, each is a factor of two or four levels.
+#' @format A data set with five factor columns.
 #' @usage data(junction)
 "junction"
 

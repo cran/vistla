@@ -5,7 +5,7 @@
 \alias{junction}
 \title{Synthetic data representing a junction}
 \format{
-A data set with five columns, each is a factor of two or four levels.
+A data set with five factor columns.
 }
 \usage{
 data(junction)

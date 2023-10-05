@@ -12,6 +12,7 @@
 #' @param gstyle graph attribute list. Functions are not supported here.
 #' @param direction when set to \code{"none"}, graph is undirected, otherwise directed, for \code{"fromY"}, root is a source, while for \code{"intoY"}, a sink.
 #' @return For a missing \code{con} argument, a character vector with the graph in the DOT format, invisible \code{NULL} otherwise.
+#' @references "An open graph visualization system and its applications to software engineering" E.R. Gansner, S.C. North. Software: Practice and Experience 30:1203-1233 (2000). 
 #' @note Graphviz attribute values can be either strings, like \code{"some vertex"} in \code{label}, or atoms, like \code{box} for \code{shape}.
 #'  When returning a string value, you must supply quotes, otherwise it will be included as an atom.
 #'

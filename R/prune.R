@@ -9,11 +9,13 @@
 #'  When given, it effectively overrides the value of \code{iomin} given to the \code{vistla} invocation; to this end, it can only be higher then the original value, since prune only modifies the output and cannot re-run the pathfinding.
 #' @return Pruned \code{x}; if both arguments are missing, this function still removes suboptimal branches.
 #' @examples
+#' \dontrun{
 #'  data(chain)
 #'  v<-vistla(Y~.,data=chain)
 #'  print(v)
 #'  print(prune(v,targets="M3"))
 #'  print(prune(v,iomin=0.3))
+#' }
 #' @export
 prune<-function(x,targets,iomin){
  stopifnot(inherits(x,"vistla"))

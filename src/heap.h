@@ -110,7 +110,7 @@ u32 pop(struct heap *h,double *score){
 
 u32 selTied(struct heap *h,double *score){
  double rs=score[h->queue[0]];
- double tag=-1.;
+ double tag=unif_rand();
  u32 sel=0;
  u32 lasttie=0;
  for(u32 e=1;e<h->end && e<=childB(lasttie);e++)
@@ -166,7 +166,7 @@ SEXP C_heapTest(SEXP A,SEXP B,SEXP Torture){
  if(M<N) error("Invalid test data, B cannot be shorter than A");
 
  double *x=(double*)R_alloc(sizeof(double),cap);
- for(int e=0;e<M;e++) x[e]=-777.;
+ for(int e=0;e<M;e++) x[e]=R_NegInf;
  for(int e=0;e<N;e++) x[e]=a[e];
 
  SEXP Ans; PROTECT(Ans=allocVector(REALSXP,N+M));
@@ -219,6 +219,52 @@ SEXP C_heapTest(SEXP A,SEXP B,SEXP Torture){
 
 
  //Return ans back to R so it can be compared with sort
+ UNPROTECT(1);
+ return(Ans);
+}
+
+SEXP C_heapTiedTest(SEXP A,SEXP B){
+ int N=length(A);
+ double *a=REAL(A);
+ int M=length(B);
+ double *b=REAL(B);
+
+ int cap=M;
+ if(M<N) error("Invalid test data, B cannot be shorter than A");
+
+ double *x=(double*)R_alloc(sizeof(double),cap);
+ for(int e=0;e<M;e++) x[e]=R_NegInf;
+ for(int e=0;e<N;e++) x[e]=a[e];
+
+ SEXP Ans; PROTECT(Ans=allocVector(INTSXP,M));
+ int *ans=INTEGER(Ans);
+
+ //Push with heapify
+ struct heap *h=R_allocHeap(cap);
+ for(u32 e=0;e<N;e++) addBreaking(h,e);
+ heapify(h,x);
+ integrity_test(h,x);
+ 
+ //Push new data with update
+ for(u32 e=0;e<M;e++){
+  if(b[e]<x[e]) error("Invalid test data, cannot update to lower!");
+  x[e]=b[e];
+  update(h,e,x);
+ }
+ integrity_test(h,x);
+ 
+ //Pop breaking ties
+ GetRNGstate();
+ for(u32 e=0;e<M;e++){
+  if(isTied(h,x)){
+   breakTie(h,x);
+   ans[e]=-(pop(h,x)+1);
+  }else{
+   ans[e]=pop(h,x)+1;
+  }
+ }
+ PutRNGstate();
+ 
  UNPROTECT(1);
  return(Ans);
 }

@@ -18,12 +18,17 @@ enum flow verify_flow(u32 x){
  return(x);
 }
 
-SEXP C_vistla(SEXP X,SEXP Y,SEXP Flow,SEXP Threshold,SEXP Targets,SEXP Verbose,SEXP Threads){
+
+SEXP C_vistla(SEXP X,SEXP Y,SEXP Flow,SEXP Estimator,SEXP Threshold,SEXP Targets,SEXP Verbose,SEXP Threads){
+ enum flow flow=verify_flow(asInteger(Flow));
+ enum estimator estimator=verify_estimator(asInteger(Estimator));
+ 
  if(!isFrame(X)) error("X has to be a data.frame");
  u32 m=length(X);
  if(m==0) error("X has no columns to trace through");
  u32 n=length(VECTOR_ELT(X,0));
  if(n!=length(Y)) error("X and Y size mismatch");
+ u32 nn=(estimator==kt)?(n*(n-1)):n; //TODO: Size check
 
  if(isInteger(Threads) && length(Threads)!=1) error("Invalid threads argument");
  u32 nt=asInteger(Threads);
@@ -37,7 +42,7 @@ SEXP C_vistla(SEXP X,SEXP Y,SEXP Flow,SEXP Threshold,SEXP Targets,SEXP Verbose,S
 
  struct ht **ht=(struct ht**)R_alloc(sizeof(struct ht*),nt);
  for(int e=0;e<nt;e++)
-  ht[e]=R_allocHt(n);
+  ht[e]=R_allocHt(nn);
  
  u32 **x=(u32**)R_alloc(sizeof(u32*),m),
      *nx=(u32*)R_alloc(sizeof(u32),m),
@@ -63,16 +68,16 @@ SEXP C_vistla(SEXP X,SEXP Y,SEXP Flow,SEXP Threshold,SEXP Targets,SEXP Verbose,S
   ntargets=m;
  }
 
- enum flow flow=verify_flow(asInteger(Flow));
  
  if(verbose) Rprintf("Coercing input\n");
 
  for(int e=0;e<m;e++){
-  SEXP Xe=VECTOR_ELT(X,e);
-  x[e]=convertSEXP(*ht,n,Xe,nx+e);
+  SEXP Xe=PROTECT(VECTOR_ELT(X,e));
+  x[e]=convertSEXP(*ht,n,Xe,nx+e,estimator);
+  UNPROTECT(1);
   if(!(x[e])) error("Wrong X[,%d] type",e+1);
  }
- y=convertSEXP(*ht,n,Y,&ny);
+ y=convertSEXP(*ht,n,Y,&ny,estimator);
  if(!y) error("Wrong Y type");
 
  SEXP Ans=PROTECT(allocVector(VECSXP,3));
@@ -80,9 +85,10 @@ SEXP C_vistla(SEXP X,SEXP Y,SEXP Flow,SEXP Threshold,SEXP Targets,SEXP Verbose,S
  SEXP MiY=PROTECT(allocVector(REALSXP,m));
  setAttrib(MiY,R_NamesSymbol,getAttrib(X,R_NamesSymbol));
  SEXP DN=PROTECT(allocVector(VECSXP,2));
- SEXP Xn=getAttrib(X,R_NamesSymbol);
+ SEXP Xn=PROTECT(getAttrib(X,R_NamesSymbol));
  SET_VECTOR_ELT(DN,0,Xn);
  SET_VECTOR_ELT(DN,1,Xn);
+ UNPROTECT(1);
  SEXP AN=PROTECT(allocVector(STRSXP,3));
  SET_STRING_ELT(AN,0,mkChar("tree"));
  SET_STRING_ELT(AN,1,mkChar("mi"));
@@ -103,20 +109,20 @@ SEXP C_vistla(SEXP X,SEXP Y,SEXP Flow,SEXP Threshold,SEXP Targets,SEXP Verbose,S
  //Initiate the place for MI calculations
  bool *v=(bool*)R_alloc(sizeof(bool),m*m);
 
- u32 *cXes=(u32*)R_alloc(sizeof(u32),n*nt),
-     *cXees=(u32*)R_alloc(sizeof(u32),n*nt);
+ u32 *cXes=(u32*)R_alloc(sizeof(u32),nn*nt),
+     *cXees=(u32*)R_alloc(sizeof(u32),nn*nt);
  #pragma omp parallel num_threads(nt)
  {
   int tn=omp_get_thread_num();
-  u32 *cXe=cXes+n*tn,
-      *cXee=cXees+n*tn;
+  u32 *cXe=cXes+nn*tn,
+      *cXee=cXees+nn*tn;
   struct ht *htc=ht[tn];
 
   #pragma omp for
   for(u32 t=0;t<m*(m-1)/2;t++){
    u32 e,ee;
    t2ij(t,&e,&ee);
-   fillHt(htc,n,nx[e],x[e],nx[ee],x[ee],NULL,cXe,cXee,0);
+   fillHt(htc,nn,nx[e],x[e],nx[ee],x[ee],NULL,cXe,cXee,0);
    mi[e+ee*m]=mi[ee+e*m]=miHt(htc,cXe,cXee);
   }
  }
@@ -136,35 +142,37 @@ SEXP C_vistla(SEXP X,SEXP Y,SEXP Flow,SEXP Threshold,SEXP Targets,SEXP Verbose,S
     P[ee+e*m]=NA_INTEGER;
    }
 
- u32 *xeys=(u32*)R_alloc(sizeof(u32),n*nt),
-     *cYs=(u32*)R_alloc(sizeof(u32),n*nt);
+ u32 *xeys=(u32*)R_alloc(sizeof(u32),nn*nt),
+     *cYs=(u32*)R_alloc(sizeof(u32),nn*nt);
  double *miY=REAL(MiY);
 
  #pragma omp parallel num_threads(nt)
  {
  
   int tn=omp_get_thread_num();
-  u32 *xey=xeys+n*tn,
-      *cY=cYs+n*tn,
-      *cXe=cXes+n*tn, //Re-used form previous loop
-      *cXee=cXees+n*tn;
+  u32 *xey=xeys+nn*tn,
+      *cY=cYs+nn*tn,
+      *cXe=cXes+nn*tn, //Re-used form previous loop
+      *cXee=cXees+nn*tn;
   u32 *cXeY=cY; //alias
   struct ht *htc=ht[tn];
   #pragma omp for
   for(u32 e=0;e<m;e++){
-   u32 nxey=fillHt(htc,n,nx[e],x[e],ny,y,xey,cXe,cY,1);
+   u32 nxey=fillHt(htc,nn,nx[e],x[e],ny,y,xey,cXe,cY,1);
    miY[e]=miHt(htc,cXe,cY);
-   for(u32 ee=0;ee<e;ee++) if(ee!=e){
-    fillHt(htc,n,nx[ee],x[ee],nxey,xey,NULL,cXee,cXeY,0);
+   for(u32 ee=0;ee<m;ee++) if(ee!=e){
+    fillHt(htc,nn,nx[ee],x[ee],nxey,xey,NULL,cXee,cXeY,0);
     double jmiXee_XeY=miHt(htc,cXee,cXeY);
-    S[ee+e*m]=mi[ee+e*m]-jmiXee_XeY;
+    S[ee+e*m]=jmiXee_XeY;
    }
   }
-
+  #pragma omp barrier
+  #pragma omp for
+  for(u32 e=0;e<m;e++)
+   for(u32 ee=0;ee<m;ee++) if(e!=ee)
+    S[ee+e*m]=(miY[ee]+mi[ee+e*m])-S[ee+e*m];
  }
- for(u32 e=0;e<m;e++)
-  for(u32 ee=0;ee<e;ee++) if(e!=ee) S[ee+e*m]+=miY[ee];
-  
+ 
  struct heap *queue=R_allocHeap(m*m);
  
  //Set-up S for the depth-1 scores (all threes involving Y)
@@ -172,8 +180,6 @@ SEXP C_vistla(SEXP X,SEXP Y,SEXP Flow,SEXP Threshold,SEXP Targets,SEXP Verbose,S
   for(u32 ee=0;ee<m;ee++) if(e!=ee){
    u32 idx=ee+e*m;
    double *cS=&(S[idx]); //cS is S[ee,e], from ee->e
-   //Transpose to fill the other triangle
-   if(ee>e) *cS=S[e+ee*m];
    //Apply the flow ineq for various modes -- here hill is the same as flow
    if(((flow&forward) || (flow&hilldown)) && !(miY[ee]>miY[e])) *cS=0.; 
    if(((flow&backward) || (flow&hillup)) && !(mi[e+ee*m]>miY[e])) *cS=0.; 
@@ -269,9 +275,9 @@ SEXP C_vistla(SEXP X,SEXP Y,SEXP Flow,SEXP Threshold,SEXP Targets,SEXP Verbose,S
    if((nS<=iomin) || (nS<=S[b+c*m])) continue; //Checks for immediate back-off
    if(!nxab){
     //Also generatex xab
-    nxab=fillHt(*ht,n,nx[a],x[a],nx[b],x[b],xab,NULL,NULL,1);
+    nxab=fillHt(*ht,nn,nx[a],x[a],nx[b],x[b],xab,NULL,NULL,1);
    }
-   fillHt(*ht,n,nx[c],x[c],nxab,xab,NULL,cXc,cXab,0);
+   fillHt(*ht,nn,nx[c],x[c],nxab,xab,NULL,cXc,cXab,0);
    nS-=miHt(*ht,cXc,cXab);
 
    //Another back-off check
@@ -317,7 +323,7 @@ SEXP C_vistla(SEXP X,SEXP Y,SEXP Flow,SEXP Threshold,SEXP Targets,SEXP Verbose,S
  SET_VECTOR_ELT(Tree,5,TreeLeaf);
  SET_VECTOR_ELT(Tree,6,TreeUsed);
  SET_VECTOR_ELT(Tree,7,TreePrv);
- UNPROTECT(8); //Tree-A,B,C,Prv,Score,Depth,Leaf and Used
+ UNPROTECT(8); //Tree-A, B, C, Prv, Score, Depth, Leaf & Used
 
  u32
   *ta=(u32*)INTEGER(TreeA),

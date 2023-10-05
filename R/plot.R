@@ -29,6 +29,7 @@
 #' @param asp1 if \code{TRUE}, scales on both axes are the same, like with \code{asp=1} in base graphics.
 #' @param pmar Specifies margins as a fraction of graph size; expects a 4-element vector, in standard R bottom-left-top-right order.
 #' @return Grid object with the graph.
+#' @references "Drawing rooted trees in linear time" C. Buchheim, M. Jünger, S. Leipert. Software: Practice and Experience 36(6):651-665 (2006). 
 #' @export
 plot.vistla<-function(
  x,...,

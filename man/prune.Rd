@@ -23,9 +23,11 @@ Pruned \code{x}; if both arguments are missing, this function still removes subo
 This function allows to filter out suboptimal branches, as well as weak ones or these not in particular paths of interest.
 }
 \examples{
+\dontrun{
  data(chain)
  v<-vistla(Y~.,data=chain)
  print(v)
  print(prune(v,targets="M3"))
  print(prune(v,iomin=0.3))
+}
 }

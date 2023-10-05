@@ -26,42 +26,53 @@ vistla.formula<-function(formula,data,...,yn){
 #' @rdname vistla
 #' @param x data frame of predictors.
 #' @param y vistla tree root, a feature from which influence paths will be traced.
-#' @param flow algorithm mode, specifying the iota function which gives local score to an edge of an edge graph. If in doubt, use the default, \code{"fromdown"}.
-#' @param iomin score threshold below which path is not considered further. The higher value the less paths are generated, which also lowers the time taken by the function.
+#' @param flow algorithm mode, specifying the iota function which gives local score to an edge of an edge graph. 
+#'  If in doubt, use the default, \code{"fromdown"}.
+#' @param iomin score threshold below which path is not considered further. 
+#'  The higher value the less paths are generated, which also lowers the time taken by the function.
 #'  The default value of 0 turns of this filtering.
 #'  The same effect can be later achieved with the \code{\link{prune}} function.
 #' @param targets a vector of target feature names.
 #'  If given, the algorithm will stop just after reaching the last of them, rather than after tracing all paths from the root.
 #'  The same effect can be later achieved with the \code{\link{prune}} function.
+#'  This is a simple method to remove irrelevant paths, yet it comes with a substantial increase in computational burden.
 #' @param verbose when set to \code{TRUE}, turns on reporting of the algorithm progress.
-#' @param yn name of the root (\code{Y} value), used in result pretty-printing and plots. Must be a single-element character vector.
+#' @param estimator mutual information estimator to use.
+#'  \code{"mle"} --- maximal likelihood, requires all features to be discrete (factors or booleans).
+#'  \code{"kt"} --- Kendall transformation, requires all features to be either ordinal (numeric, integer or ordered factor) or bi-valued (two-level factors or booleans).
+#' @param yn name of the root (\code{Y} value), used in result pretty-printing and plots. 
+#'  Must be a single-element character vector.
 #' @param threads number of threads to use. 
-#'  When missing or set to 0, uses all available cores.
+#'  When missing or set to 0, vistla uses all available cores.
 #' @param ... pass-through arguments, ignored.
 #' @return The tracing results represented as an object of a class \code{vistla}.
 #'  Use \code{\link{paths}} and \code{\link{path_to}} functions to extract individual paths,
 #'  \code{\link{branches}} to get the whole tree and \code{\link{mi_scores}} to get the basic score matrix.
+#' @references "Kendall transformation brings a robust categorical representation of ordinal data" M.B. Kursa. SciRep 12, 8341 (2022).
 #' @method vistla data.frame
 #' @export
-vistla.data.frame<-function(x,y,...,flow,iomin,targets,verbose=FALSE,yn="Y",threads){
-
- #Encode targets
- if(missing(targets)){
-  targets<-integer(0)
- }else{
-  targets<-unique(match(targets,names(x)))
-  if(any(is.na(targets))) stop("Unknown variables specified as targets")
- }
+vistla.data.frame<-function(x,y,...,flow,iomin,targets,estimator=c("mle","kt"),verbose=FALSE,yn="Y",threads){
+ targets<-if(!missing(targets))
+  unique(match(targets,names(x))) else integer(0)
+ if(any(is.na(targets))) stop("Unknown variables specified as targets")
  if(missing(flow)) flow<-1L+8L
  if(is.character(flow)) flow<-vistla::flow(flow)
  if(missing(iomin)) iomin<-0
  if(missing(threads)) threads<-0L
+
+ #Prepare input
+ estimator<-match.arg(estimator)
+ ec<-if(estimator=="mle") 1L else if(estimator=="kt") 2L else 17L;
+ 
+ #Execute
  ans<-.Call(
   C_vistla,x,y,
-  flow=as.integer(flow)[1],
+  as.integer(flow)[1],ec,
   iomin,targets,verbose,
   as.integer(threads)
  )
+
+ #Enhance the output
  ans$yn<-yn
  ans$iomin<-iomin
  stats::setNames(
@@ -69,10 +80,14 @@ vistla.data.frame<-function(x,y,...,flow,iomin,targets,verbose=FALSE,yn="Y",thre
   c("a","b","c","score","depth","leaf","used","prv")
  )->ans$tree
 
+ class(ans)<-"vistla"
+ 
+ ans$flow<-flow
+ class(ans$flow)<-"vistla_flow"
+ 
  if(length(targets)>0)
   ans<-prune_targets(ans,targets)
-
- class(ans)<-"vistla"
+    
  ans
 }
 
@@ -120,6 +135,15 @@ flow<-function(code,...,from=TRUE,into=FALSE,down,up,forcepath){
  ans
 }
 
+flow2char<-function(x)
+ paste(
+  c("spread","from","into","both")[bitwAnd(x,3L)+1],
+  ifelse(bitwAnd(x,4L)>0,"up",""),
+  ifelse(bitwAnd(x,8L)>0,"down",""),
+  ifelse(bitwAnd(x,16L)>0,"!",""),
+  sep=""
+ )
+
 #' @rdname flow
 #' @method print vistla_flow
 #' @param x flow value to print.
@@ -127,10 +151,7 @@ flow<-function(code,...,from=TRUE,into=FALSE,down,up,forcepath){
 print.vistla_flow<-function(x,...){
  cat(paste(
   "Vistla flow: ",
-  c("spread","from","into","both")[bitwAnd(x,3L)+1],
-  ifelse(bitwAnd(x,4L)>0,"up",""),
-  ifelse(bitwAnd(x,8L)>0,"down",""),
-  ifelse(bitwAnd(x,16L)>0,"!",""),
+  flow2char(x),
   "\n",
   sep=""))
  invisible(x)
@@ -194,12 +215,3 @@ print.vistla<-function(x,n=7L,...){
  invisible(x)
 }
 
-#' Coerce data as vistla would
-#'
-#' This function will coerce the input vector into factor as \code{\link{vistla}} function would.
-#' Useful for testing or pre-computing quantisation.
-#' @param x Input vector.
-#' @return \code{x} coerced into factor.
-#' @export
-vistla_coerce<-function(x)
- .Call(C_convert,x)

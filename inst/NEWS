@@ -1,3 +1,15 @@
+Changes in 2.0.0:
+ - Information estimation argument; vistla
+ no longer performs auto-discretisation of
+ continuous inputs.
+ - Random tie breaking works properly.
+ - Plots are more compatible with the wider
+ grid ecosystem.
+ - Integrated Kendall transformation for
+ processing of continuous variables.
+ - agreement() removed.
+ - Test suite only runs on CI.
+
 Changes in 1.1.0:
  - Random tie breaking.
  - Grid-based plot with improved layout.
