@@ -195,7 +195,7 @@ SEXP C_heapTest(SEXP A,SEXP B,SEXP Torture){
  //Verify push from update
  for(u32 e=0;e<N;e++){
   double popped=a[pop(h,x)];
-  if(ans[e]!=popped) error("FATAL: Sorting has failed (2)!",e,ans[e],popped); 
+  if(ans[e]!=popped) error("FATAL: Sorting has failed (2)!"); 
   if(torture) integrity_test(h,x);
  }
 
@@ -247,7 +247,7 @@ SEXP C_heapTiedTest(SEXP A,SEXP B){
  
  //Push new data with update
  for(u32 e=0;e<M;e++){
-  if(b[e]<x[e]) error("Invalid test data, cannot update to lower!");
+  if(b[e]<x[e]) error("Invalid test data, cannot update to lower");
   x[e]=b[e];
   update(h,e,x);
  }

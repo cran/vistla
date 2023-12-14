@@ -1,3 +1,9 @@
+Changes in 2.0.1:
+ - Fixed CRAN warning (irrelevant to the
+ package functionality).
+ - Error is emitted when the number of
+ objects is too large for KT to function.
+
 Changes in 2.0.0:
  - Information estimation argument; vistla
  no longer performs auto-discretisation of

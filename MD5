@@ -1,4 +1,4 @@
-aef71dbe38ac4bf6b15f5d5c004335b6 *DESCRIPTION
+cb89bd016f34597796b902f737830a15 *DESCRIPTION
 d99d2fabe3098b528376cab8a41cf7f9 *NAMESPACE
 d1301c6b2956889fb45ee6acd9d6bdfb *R/coerce.R
 226c87290c9ac0abaa05f3f51328fc98 *R/data.R
@@ -13,7 +13,7 @@ d394d14fbac2ccc0d82a436ced2604d8 *R/vistla.R
 56e892a7236ff884d5438e5dcd6ed4f6 *data/cchain.rda
 567bf226a991024b38c506286469d7dd *data/chain.rda
 02028e09561b5ec14446eb9d3c578965 *data/junction.rda
-1dc6d2df16b3ded177bbc32ba6931aed *inst/NEWS
+ed0cb6bef13e69fc9b6581649755b072 *inst/NEWS
 93f3ed350cd43a5da1914c3208f7d670 *man/branches.Rd
 7597df92f7fae270607733a056dce1ab *man/cchain.Rd
 c5c1e4599b4c3a1bbd07936f72e44f11 *man/chain.Rd
@@ -32,9 +32,9 @@ b072f9bf1d8faf63c9fe440a55db81bd *man/vistla.Rd
 2562522ffbc6d293454c38d92986edab *man/write.dot.Rd
 80c666e0443bf11cb1c9dcd1908390dc *src/Makevars
 5b2fb41806e0876578bd9c86bc993262 *src/convert.h
-017535b692ce9461f80e3b2311eeb534 *src/heap.h
+fda682465d96cb1090bc1de28aac176f *src/heap.h
 9757b50ebb8d9655fc720d020dd8cd1f *src/ht.h
 f66de6b00058ce9a072f3507da573654 *src/shared.h
 fc9c8c69a0e7ac97966bcc4e4e7b724b *src/vistla.c
-23b8cbc851088a30a145d13a5b77cfe1 *src/vistla.h
+8b6c932109385fb54e93ee1b0e82ba19 *src/vistla.h
 ac1fe594ded415c203050fd540826ee9 *tests/cran.R

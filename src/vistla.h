@@ -28,7 +28,9 @@ SEXP C_vistla(SEXP X,SEXP Y,SEXP Flow,SEXP Estimator,SEXP Threshold,SEXP Targets
  if(m==0) error("X has no columns to trace through");
  u32 n=length(VECTOR_ELT(X,0));
  if(n!=length(Y)) error("X and Y size mismatch");
- u32 nn=(estimator==kt)?(n*(n-1)):n; //TODO: Size check
+ if(n>46341 && estimator==kt) error("KT works up to 46341 objects");
+ u32 nn=(estimator==kt)?(n*(n-1)):n; 
+ 
 
  if(isInteger(Threads) && length(Threads)!=1) error("Invalid threads argument");
  u32 nt=asInteger(Threads);
