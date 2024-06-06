@@ -43,15 +43,17 @@ as.data.frame.vistla<-function(x,row.names=NULL,optional=FALSE,suboptimal=FALSE,
 #' Extract a single path
 #'
 #' Gives access to a vector of feature names over a path to a certain target feature.
-#' @param x vistla object.
+#' @param x vistla or vistla_hierarchy object.
 #' @param detailed if \code{TRUE}, suppresses default output and presents the same paths as a data frame featuring score.
 #' @param target target feature name.
 #' @return By default, a character vector with names of features along the path from \code{target} into root.
-#'  When \code{detailed} is set to \code{TRUE}, a \code{data.frame} in a format identical to this produced by
-#'  \code{\link{branches}}, yet without the \code{leaf} column.
+#'  When \code{detailed} is set to \code{TRUE} and input is a vistla object, a \code{data.frame} in a format identical
+#'  to this produced by \code{\link{branches}}, yet without the \code{leaf} column.
 #' @export
 path_to<-function(x,target,detailed=FALSE){
- stopifnot(inherits(x,"vistla"))
+ if(inherits(x,"vistla_hierarchy"))
+  return(path_to_h(x,target,detailed))
+ if(!inherits(x,"vistla")) stop("Invalid input")
  colnames(x$mi)->n
  which(n==target)->idx
  if(length(idx)!=1) stop(sprintf("Target feature %s was not in the training set",target))
@@ -80,13 +82,38 @@ path_to<-function(x,target,detailed=FALSE){
  ans
 }
 
+#Implemantation for vistla_hierarchy
+path_to_h<-function(x,target,detailed){
+ idx<-which(x$name==target & x$leaf)
+ if(length(idx)<1)
+  stop(sprintf("Target feature %s is not on the hierarchy tree",target))
+ ans<-lapply(idx,function(idx){
+  ans<-c()
+  while(!is.na(idx)){
+   #ans<-c(ans,x$name[idx])
+   ans<-c(ans,idx)
+   idx<-x$prv[idx]
+  } 
+  if(!detailed) x$name[ans] else{
+   x[ans,c("name","score","depth","leaf")]->ans
+   rownames(ans)<-NULL
+   class(ans)<-"data.frame"
+   ans
+  }
+ })
+ if(length(ans)==1) ans<-ans[[1]]
+ return(ans)
+ 
+}
+
 #' List all paths
 #'
 #' Executes \code{\link{path_to}} for all path possible targets and returns
 #' a list with the results.
-#' @param x vistla object.
+#' @param x vistla or vistla_hierarchy object.
 #' @param targets_only if \code{TRUE}, only paths to targets are extracted. 
 #'  By default, turned on when \code{x} has targets, and off otherwise.
+#'  Ignored when \code{x} is a vistla_hierarchy.
 #' @param detailed passed to \code{\link{path_to}}. If \code{TRUE},
 #'  suppresses default output and presents the same paths in a form of
 #'  data frames featuring score.
@@ -95,9 +122,13 @@ path_to<-function(x,target,detailed=FALSE){
 #'  to this used by the \code{\link{path_to}} function.
 #' @export
 paths<-function(x,targets_only=!is.null(x$targets),detailed=FALSE){
- targets<-if(targets_only) c(x$targets) else x$tree$c[x$tree$leaf&x$tree$used]
- colnames(x$mi)->n
- targets<-n[targets]
+ if(inherits(x,"vistla")){
+  targets<-if(targets_only) c(x$targets) else x$tree$c[x$tree$leaf&x$tree$used]
+  colnames(x$mi)->n
+  targets<-n[targets]
+ }else if(inherits(x,"vistla_hierarchy")){
+  targets<-unique(x$name[x$leaf])
+ }else stop("Invalid input")
  stats::setNames(lapply(targets,function(t) path_to(x,t,detailed=detailed)),targets)
 }
 

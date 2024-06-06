@@ -7,7 +7,7 @@
 path_to(x, target, detailed = FALSE)
 }
 \arguments{
-\item{x}{vistla object.}
+\item{x}{vistla or vistla_hierarchy object.}
 
 \item{target}{target feature name.}
 
@@ -15,8 +15,8 @@ path_to(x, target, detailed = FALSE)
 }
 \value{
 By default, a character vector with names of features along the path from \code{target} into root.
- When \code{detailed} is set to \code{TRUE}, a \code{data.frame} in a format identical to this produced by
- \code{\link{branches}}, yet without the \code{leaf} column.
+ When \code{detailed} is set to \code{TRUE} and input is a vistla object, a \code{data.frame} in a format identical
+ to this produced by \code{\link{branches}}, yet without the \code{leaf} column.
 }
 \description{
 Gives access to a vector of feature names over a path to a certain target feature.

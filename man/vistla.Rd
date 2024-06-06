@@ -21,6 +21,7 @@ vistla(x, ...)
   estimator = c("mle", "kt"),
   verbose = FALSE,
   yn = "Y",
+  ensemble,
   threads
 )
 
@@ -44,7 +45,8 @@ Must be a single-element character vector.}
 \item{y}{vistla tree root, a feature from which influence paths will be traced.}
 
 \item{flow}{algorithm mode, specifying the iota function which gives local score to an edge of an edge graph. 
-If in doubt, use the default, \code{"fromdown"}.}
+If in doubt, use the default, \code{"fromdown"}.
+Consult the documentation of the \code{\link{flow}} function for more information.}
 
 \item{iomin}{score threshold below which path is not considered further. 
 The higher value the less paths are generated, which also lowers the time taken by the function.
@@ -62,16 +64,26 @@ This is a simple method to remove irrelevant paths, yet it comes with a substant
 
 \item{verbose}{when set to \code{TRUE}, turns on reporting of the algorithm progress.}
 
+\item{ensemble}{used to switch vistla to the ensemble mode, in which a number of vistla models are built over permuted realisations of the input, and merged into a single consensus tree.
+Should be given an output of the \code{\link{ensemble}} function; as a short-cut, one can pass a single number, which will be interpreted as the number of replications with other ensemble parameter default.
+That is, \code{ensemble=30} is equivalent to \code{ensemble=ensemble(n=30)}.
+Permutations are applied before estimators.}
+
 \item{threads}{number of threads to use. 
 When missing or set to 0, vistla uses all available cores.}
 }
 \value{
-The tracing results represented as an object of a class \code{vistla}.
+Normally, the tracing results represented as an object of a class \code{vistla}.
  Use \code{\link{paths}} and \code{\link{path_to}} functions to extract individual paths,
  \code{\link{branches}} to get the whole tree and \code{\link{mi_scores}} to get the basic score matrix.
+
+ When \code{ensemble} argument is given, a hierarchy object with the scored being counts of times certain path was present among the replicated ensemble, possibly pruned.
 }
 \description{
 Detects influence paths.
+}
+\note{
+The ensemble mode is both faster and makes better use of multithreading than replicating vistla manually.
 }
 \references{
 "Kendall transformation brings a robust categorical representation of ordinal data" M.B. Kursa. SciRep 12, 8341 (2022).

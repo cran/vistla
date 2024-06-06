@@ -1,4 +1,4 @@
-#include <stdint.h>
+//Simple binary heap; used for a priority queue by vistla
 
 struct heap {
  u32 *queue;
@@ -15,6 +15,24 @@ struct heap* R_allocHeap(u32 N){
  return(ans);
 }
 
+//resetHeap MUST be called on mallocHeap to initialise
+struct heap* mallocHeap(u32 N){
+ struct heap *ans=malloc(sizeof(struct heap));
+ ans->queue=malloc(sizeof(u32)*N);
+ ans->map=malloc(sizeof(u32)*N);
+ return(ans);
+}
+
+void resetHeap(struct heap *heap,u32 N){
+ for(u32 e=0;e<N;e++) heap->map[e]=NA_INTEGER;
+ heap->end=0;
+}
+
+void freeHeap(struct heap *heap){
+ free(heap->queue);
+ free(heap->map);
+ free(heap);
+}
 
 static inline u32 parent(u32 e){
  return((e-1)/2);
@@ -94,9 +112,9 @@ u32 heapLen(struct heap *h){
 void heapify(struct heap *h,double *score){
  //Array with 0 or 1 element is already a heap
  if(h->end>1) for(u32 r=(h->end+1)/2+1;r<=h->end;r++){
-  u32 e=h->end-r;
-  sink(h,e,score);
- }
+   u32 e=h->end-r;
+   sink(h,e,score);
+  }
 }
 
 u32 pop(struct heap *h,double *score){
@@ -108,21 +126,21 @@ u32 pop(struct heap *h,double *score){
  return(ans);
 }
 
-u32 selTied(struct heap *h,double *score){
+u32 selTied(struct heap *h,double *score,struct rng *rng){
  double rs=score[h->queue[0]];
- double tag=unif_rand();
+ u32 tag=random_int(rng);
  u32 sel=0;
  u32 lasttie=0;
  for(u32 e=1;e<h->end && e<=childB(lasttie);e++)
   if(score[h->queue[e]]==rs){
    lasttie=e;
-   double newtag=unif_rand();
+   double newtag=random_int(rng);
    if(newtag>tag){
     tag=newtag;
     sel=e;
    }
   }
- 
+
  return(sel);
 }
 
@@ -131,11 +149,11 @@ bool isTied(struct heap *h,double *score){
  return(
   ((1<h->end) && (score[h->queue[1]]==rs)) ||
   ((2<h->end) && (score[h->queue[2]]==rs))
- );
+  );
 }
 
-void breakTie(struct heap *h,double *score){
- swap(h,0,selTied(h,score));
+void breakTie(struct heap *h,double *score,struct rng *rng){
+ swap(h,0,selTied(h,score,rng));
 }
 
 bool integrity_test(struct heap *h,double *score){
@@ -169,23 +187,23 @@ SEXP C_heapTest(SEXP A,SEXP B,SEXP Torture){
  for(int e=0;e<M;e++) x[e]=R_NegInf;
  for(int e=0;e<N;e++) x[e]=a[e];
 
- SEXP Ans; PROTECT(Ans=allocVector(REALSXP,N+M));
+ SEXP Ans;PROTECT(Ans=allocVector(REALSXP,N+M));
  double *ans=REAL(Ans);
 
  //Push with heapify
- struct heap *h=R_allocHeap(cap);
+ struct heap *h=(struct heap*)R_allocHeap(cap);
  for(u32 e=0;e<N;e++) addBreaking(h,e);
  heapify(h,x);
 
  integrity_test(h,x);
- 
+
  //Verify push from heapify
  for(u32 e=0;e<N;e++){
   ans[e]=a[pop(h,x)];
-  if(e>0 && (ans[e-1]<ans[e])) error("FATAL: Sorting has failed (1)!"); 
+  if(e>0 && (ans[e-1]<ans[e])) error("FATAL: Sorting has failed (1)!");
   if(torture) integrity_test(h,x);
  }
- 
+
  //Push with update
  for(u32 e=0;e<N;e++){
   update(h,e,x);
@@ -195,7 +213,7 @@ SEXP C_heapTest(SEXP A,SEXP B,SEXP Torture){
  //Verify push from update
  for(u32 e=0;e<N;e++){
   double popped=a[pop(h,x)];
-  if(ans[e]!=popped) error("FATAL: Sorting has failed (2)!"); 
+  if(ans[e]!=popped) error("FATAL: Sorting has failed (2)!");
   if(torture) integrity_test(h,x);
  }
 
@@ -213,7 +231,7 @@ SEXP C_heapTest(SEXP A,SEXP B,SEXP Torture){
  //Verify update
  for(u32 e=0;e<M;e++){
   ans[e+N]=x[pop(h,x)];
-  if(e>0 && (ans[N+e-1]<ans[N+e])) error("FATAL: Sorting has failed (3)!"); 
+  if(e>0 && (ans[N+e-1]<ans[N+e])) error("FATAL: Sorting has failed (3)!");
   if(torture) integrity_test(h,x);
  }
 
@@ -236,15 +254,15 @@ SEXP C_heapTiedTest(SEXP A,SEXP B){
  for(int e=0;e<M;e++) x[e]=R_NegInf;
  for(int e=0;e<N;e++) x[e]=a[e];
 
- SEXP Ans; PROTECT(Ans=allocVector(INTSXP,M));
+ SEXP Ans;PROTECT(Ans=allocVector(INTSXP,M));
  int *ans=INTEGER(Ans);
 
  //Push with heapify
- struct heap *h=R_allocHeap(cap);
+ struct heap *h=(struct heap*)R_allocHeap(cap);
  for(u32 e=0;e<N;e++) addBreaking(h,e);
  heapify(h,x);
  integrity_test(h,x);
- 
+
  //Push new data with update
  for(u32 e=0;e<M;e++){
   if(b[e]<x[e]) error("Invalid test data, cannot update to lower");
@@ -252,19 +270,19 @@ SEXP C_heapTiedTest(SEXP A,SEXP B){
   update(h,e,x);
  }
  integrity_test(h,x);
- 
+
  //Pop breaking ties
- GetRNGstate();
+ struct rng rng;
+ set_from_r(&rng);
  for(u32 e=0;e<M;e++){
   if(isTied(h,x)){
-   breakTie(h,x);
+   breakTie(h,x,&rng);
    ans[e]=-(pop(h,x)+1);
   }else{
    ans[e]=pop(h,x)+1;
   }
  }
- PutRNGstate();
- 
+
  UNPROTECT(1);
  return(Ans);
 }

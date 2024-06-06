@@ -4,17 +4,19 @@
 \alias{prune}
 \title{Prune the vistla tree}
 \usage{
-prune(x, targets, iomin)
+prune(x, targets, iomin, score)
 }
 \arguments{
-\item{x}{vistla object.}
+\item{x}{vistla object or a vistla_hierarchy object.}
 
 \item{targets}{a character vector of features.
 When not missing, all branches not on lying paths to these targets are pruned.
 Unreachable targets are ignored, while names not present in the analysed set cause an error.}
 
-\item{iomin}{a single numerical value.
-When given, it effectively overrides the value of \code{iomin} given to the \code{vistla} invocation; to this end, it can only be higher then the original value, since prune only modifies the output and cannot re-run the pathfinding.}
+\item{iomin}{a legacy name for score, valid only for vistla objects; passing a value to either of them works the same, but giving some values for both is an error.}
+
+\item{score}{a score threshold below which branches should be removed.
+When given, it effectively overrides the value of \code{iomin} or \code{ensemble(prune,...)} given to the \code{vistla} invocation; to this end, it can only be higher then the original value, since prune only modifies the output and cannot re-run the pathfinding.}
 }
 \value{
 Pruned \code{x}; if both arguments are missing, this function still removes suboptimal branches.
@@ -28,6 +30,6 @@ This function allows to filter out suboptimal branches, as well as weak ones or 
  v<-vistla(Y~.,data=chain)
  print(v)
  print(prune(v,targets="M3"))
- print(prune(v,iomin=0.3))
+ print(prune(v,score=0.3))
 }
 }

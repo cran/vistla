@@ -1,3 +1,15 @@
+Changes in 2.0.2:
+ - Changes in the example datasets to 
+ make documentation more consistent.
+ - Ensemble option to get a consensus
+ over many iterations of vistla.
+ - Better handling of hierarchy objects,
+ which are also a result of ensemble;
+ in particular, path_to(), paths(), and
+ prune() work on those objects.
+ - Changes to the internal PRNG, old 
+ results for certain seeds may change.
+
 Changes in 2.0.1:
  - Fixed CRAN warning (irrelevant to the
  package functionality).

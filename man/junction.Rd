@@ -12,9 +12,9 @@ data(junction)
 }
 \description{
 Junction is a model of a multimodal agent, a variable that is an element of multiple separate paths.
-Here, these paths are \eqn{A_1\rightarrow X \rightarrow A_2} and 
-\eqn{B_1\rightarrow X \rightarrow B_2,}
-while \eqn{X} is the junction.
+Here, these paths are \eqn{A_1\rightarrow J \rightarrow A_2} and 
+\eqn{B_1\rightarrow J \rightarrow B_2,}
+while \eqn{J} is the junction.
 The set consists of 12 observations, and is tuned to be easily deciphered.
 }
 \keyword{datasets}

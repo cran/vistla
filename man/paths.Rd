@@ -7,10 +7,11 @@
 paths(x, targets_only = !is.null(x$targets), detailed = FALSE)
 }
 \arguments{
-\item{x}{vistla object.}
+\item{x}{vistla or vistla_hierarchy object.}
 
 \item{targets_only}{if \code{TRUE}, only paths to targets are extracted. 
-By default, turned on when \code{x} has targets, and off otherwise.}
+By default, turned on when \code{x} has targets, and off otherwise.
+Ignored when \code{x} is a vistla_hierarchy.}
 
 \item{detailed}{passed to \code{\link{path_to}}. If \code{TRUE},
 suppresses default output and presents the same paths in a form of

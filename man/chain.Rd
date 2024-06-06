@@ -12,7 +12,7 @@ data(chain)
 }
 \description{
 Chain is generated from a simple Bayes network,
-\deqn{X\rightarrow M_1 \rightarrow M_2  \rightarrow M_3  \rightarrow M_4  \rightarrow Y}
+\deqn{Y\rightarrow M_1 \rightarrow M_2  \rightarrow M_3  \rightarrow M_4  \rightarrow T}
 where every variable is binary.
 The set consists of 11 observations, and is tuned to be easily deciphered.
 }

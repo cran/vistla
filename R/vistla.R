@@ -28,6 +28,7 @@ vistla.formula<-function(formula,data,...,yn){
 #' @param y vistla tree root, a feature from which influence paths will be traced.
 #' @param flow algorithm mode, specifying the iota function which gives local score to an edge of an edge graph. 
 #'  If in doubt, use the default, \code{"fromdown"}.
+#'  Consult the documentation of the \code{\link{flow}} function for more information.
 #' @param iomin score threshold below which path is not considered further. 
 #'  The higher value the less paths are generated, which also lowers the time taken by the function.
 #'  The default value of 0 turns of this filtering.
@@ -44,14 +45,21 @@ vistla.formula<-function(formula,data,...,yn){
 #'  Must be a single-element character vector.
 #' @param threads number of threads to use. 
 #'  When missing or set to 0, vistla uses all available cores.
+#' @param ensemble used to switch vistla to the ensemble mode, in which a number of vistla models are built over permuted realisations of the input, and merged into a single consensus tree.
+#' Should be given an output of the \code{\link{ensemble}} function; as a short-cut, one can pass a single number, which will be interpreted as the number of replications with other ensemble parameter default.
+#' That is, \code{ensemble=30} is equivalent to \code{ensemble=ensemble(n=30)}.
+#' Permutations are applied before estimators.
 #' @param ... pass-through arguments, ignored.
-#' @return The tracing results represented as an object of a class \code{vistla}.
+#' @return Normally, the tracing results represented as an object of a class \code{vistla}.
 #'  Use \code{\link{paths}} and \code{\link{path_to}} functions to extract individual paths,
 #'  \code{\link{branches}} to get the whole tree and \code{\link{mi_scores}} to get the basic score matrix.
+#' 
+#'  When \code{ensemble} argument is given, a hierarchy object with the scored being counts of times certain path was present among the replicated ensemble, possibly pruned. 
+#' @note The ensemble mode is both faster and makes better use of multithreading than replicating vistla manually.
 #' @references "Kendall transformation brings a robust categorical representation of ordinal data" M.B. Kursa. SciRep 12, 8341 (2022).
 #' @method vistla data.frame
 #' @export
-vistla.data.frame<-function(x,y,...,flow,iomin,targets,estimator=c("mle","kt"),verbose=FALSE,yn="Y",threads){
+vistla.data.frame<-function(x,y,...,flow,iomin,targets,estimator=c("mle","kt"),verbose=FALSE,yn="Y",ensemble,threads){
  targets<-if(!missing(targets))
   unique(match(targets,names(x))) else integer(0)
  if(any(is.na(targets))) stop("Unknown variables specified as targets")
@@ -63,6 +71,9 @@ vistla.data.frame<-function(x,y,...,flow,iomin,targets,estimator=c("mle","kt"),v
  #Prepare input
  estimator<-match.arg(estimator)
  ec<-if(estimator=="mle") 1L else if(estimator=="kt") 2L else 17L;
+ 
+ #Redirect flow in case ensembling is requested
+ if(!missing(ensemble)) return(vistla_ensemble(x,y,flow,iomin,targets,ec,yn,ensemble,threads))
  
  #Execute
  ans<-.Call(
@@ -90,74 +101,6 @@ vistla.data.frame<-function(x,y,...,flow,iomin,targets,estimator=c("mle","kt"),v
     
  ans
 }
-
-#' Construct the value for the flow
-#'
-#' Vistla builds the tree by optimising the influence score over path, which is given by the iota function.
-#' The \code{flow} argument of the vistla function can be used to modify the default iota and some associated behaviours.
-#' This function can be used to construct the proper value of this argument.
-#' @param code Character code of the flow parameter, like \code{"fromdown"}. 
-#'  If given, overrides other arguments.
-#' @param from if \code{TRUE}, paths must satisfy data processing inequality as going from the root.
-#' @param into if \code{TRUE}, paths must satisfy data processing inequality as going into the root.
-#' @param down if \code{TRUE}, subsequent features on the path must have lower mutual information with the root; by default, true when \code{from} is true but if both \code{from} and \code{into} are true.
-#' Can't be true together with \code{up}.
-#' @param up if \code{TRUE}, subsequent features on the path must have higher mutual information with the root; by default, true when \code{into} is true but if both \code{from} and \code{into} are true.
-#' Can't be true together with \code{down}.
-#' @param forcepath when neither \code{up} or \code{down} is true, vistla may output walks rather than paths, i.e., sequences of features which are not unique.
-#' Yet, when this argument is set to \code{TRUE}, additional condition is checked to forbid such self-intersections.
-#' One should note that this check is computationally expensive, though.
-#' By default true when both \code{up} and \code{down} are false.
-#' @param ... ignored.
-#' @return A \code{vistla_flow} object which can be passed to the \code{vistla} function; 
-#'  in practice, a single integer value.
-#' @export
-flow<-function(code,...,from=TRUE,into=FALSE,down,up,forcepath){
- codes<-c('from'=1L,'from!'=17L,'into'=2L,'into!'=18L,'spread'=0L,'spread!'=16L,
-  'fromdown'=1L+8L,'both'=3L,'both!'=3L+16L,'intoup'=2L+4L,'down'=8L,'up'=4L)
- if(!missing(code)){
-  ans<-if(is.integer(code)) code else {
-   if(is.character(code)){
-    codes[code]
-   }else stop("Wrong value of code ")
-  }
-  if(!is.integer(ans) || is.na(ans)) stop("Unknown code ",code)
- }else{
-  if(missing(down)) down<-from & !into
-  if(missing(up)) up<-into & !from
-  if(missing(forcepath)) forcepath<-!up & !down
-  ans<-as.integer(sum(
-   c(from,into,up,down,forcepath)*
-   2^(0:4)
-  ))
- }
- class(ans)<-"vistla_flow"
- ans
-}
-
-flow2char<-function(x)
- paste(
-  c("spread","from","into","both")[bitwAnd(x,3L)+1],
-  ifelse(bitwAnd(x,4L)>0,"up",""),
-  ifelse(bitwAnd(x,8L)>0,"down",""),
-  ifelse(bitwAnd(x,16L)>0,"!",""),
-  sep=""
- )
-
-#' @rdname flow
-#' @method print vistla_flow
-#' @param x flow value to print.
-#' @export
-print.vistla_flow<-function(x,...){
- cat(paste(
-  "Vistla flow: ",
-  flow2char(x),
-  "\n",
-  sep=""))
- invisible(x)
-}
-
-
 
 #' @rdname vistla
 #' @method vistla default
@@ -215,3 +158,38 @@ print.vistla<-function(x,n=7L,...){
  invisible(x)
 }
 
+#' Extract mutual information score matrix
+#'
+#' Produces a matrix \eqn{S} where \eqn{S_{ij}} is a 
+#'  value of \eqn{I(X_i;X_j)}.
+#' This matrix is always calculated as an initial step of the
+#'  vistla algorithm and stored in the vistla object.
+#' @param x vistla object.
+#' @return A symmetric square matrix with mutual information scores between features and root.
+#' @export
+mi_scores<-function(x){
+ stopifnot(inherits(x,"vistla"))
+ rbind(cbind(x$mi,x$miY),c(x$miY,NA))->ans
+ colnames(ans)[length(x$miY)+1]<-x$yn
+ rownames(ans)[length(x$miY)+1]<-x$yn
+ ans
+}
+
+#' Extract leaf scores of vertex pairs
+#'
+#' Produces a matrix \eqn{S} where \eqn{S_{ij}} is a score
+#'  of the path ending in vertices \eqn{i} and \eqn{j}.
+#' Since vistla works on vertex pairs, this value is unique.
+#' This can be interpreted as a feature similarity matrix
+#'  in context of the current vistla root.
+#' @note This function should be called on an unpruned vistla tree,
+#'  otherwise the result will be mostly composed of zeroes.
+#' @param x vistla object.
+#' @return A square matrix with leaf scores of all feature pairs.
+#' @export
+leaf_scores<-function(x){
+ stopifnot(inherits(x,"vistla"))
+ x$mi*0->ans
+ ans[as.matrix(x$tree[,c("b","c")])]<-x$tree$score
+ ans
+}

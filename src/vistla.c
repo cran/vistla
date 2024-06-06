@@ -11,32 +11,38 @@
 #include <Rinternals.h>
 #include <R_ext/Utils.h>
 #include <R_ext/Rdynload.h>
-#include <R_ext/Visibility.h> 
+#include <R_ext/Visibility.h>
 
 #include <stdint.h>
 #include <stdbool.h>
 
 typedef uint32_t u32;
+typedef uint64_t u64;
 
 //Hash table
-
 #include "ht.h"
 
-//Heap (priority queue)
-
-#include "heap.h"
-
 //Common stuff
-
 #include "shared.h"
 
-//Input conversion
+//Heap (priority queue)
+#include "heap.h"
 
+//Prefix tree
+#include "trie.h"
+
+//Input conversion
+#include "ingest.h"
 #include "convert.h"
 
 //Algorithm
-
 #include "vistla.h"
+
+//Interface
+#include "interface.h"
+
+//Ensemble
+#include "ensemble.h"
 
 //Registration
 
@@ -46,6 +52,8 @@ static const R_CallMethodDef R_CallDef[]={
  CALLDEF(C_heapTiedTest,2),
  CALLDEF(C_convertTest,2),
  CALLDEF(C_vistla,8),
+ CALLDEF(C_vistlaEnsemble,8),
+ CALLDEF(C_trieTest,1),
  {NULL,NULL,0}
 };
 

@@ -12,7 +12,7 @@ data(cchain)
 }
 \description{
 Chain is generated from an uniform variable X by progressively adding gaussian noise, producing a mediator chain identical to this of the \code{\link{chain}} data, i.e.,
-\deqn{X\rightarrow M_1 \rightarrow M_2  \rightarrow M_3  \rightarrow M_4  \rightarrow Y}
+\deqn{Y\rightarrow M_1 \rightarrow M_2  \rightarrow M_3  \rightarrow M_4  \rightarrow T}
 The set consists of 20 observations, and is tuned to be easily deciphered.
 }
 \keyword{datasets}

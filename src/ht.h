@@ -1,15 +1,18 @@
+//Simple hash table; used for counting marginal and joint states
+// for information theory quantity estimation
+
 #define GET_A(x) ((x)>>32)
 #define GET_B(x) ((x)&0x00000000ffffffff)
 #define MAKE_AB(a,b) (((uint64_t)(a)<<32)|(b))
 
-struct ht{
+struct ht {
  struct hte **map;
  struct hte *cnt;
  u32 N;
  u32 nAB;
 };
 
-struct hte{
+struct hte {
  uint64_t ab;
  struct hte *nxt;
  u32 c;
@@ -23,13 +26,27 @@ struct ht* R_allocHt(u32 N){
  return(ans);
 }
 
+struct ht* mallocHt(u32 N){
+ struct ht *ans=malloc(sizeof(struct ht));
+ ans->N=N;
+ ans->map=malloc(sizeof(struct hte*)*N);
+ ans->cnt=malloc(sizeof(struct hte)*N);
+ return(ans);
+}
+
+void freeHt(struct ht* ht){
+ free(ht->map);
+ free(ht->cnt);
+ free(ht);
+}
+
 uint32_t static inline fillHt(struct ht *Q,u32 N,u32 nA,u32 *a,u32 nB,u32 *b,u32 *mix,u32 *cA,u32 *cB,u32 mixOff){
  if(cA) for(u32 e=0;e<nA;e++) cA[e]=0;
  if(cB) for(u32 e=0;e<nB;e++) cB[e]=0;
- u32 Neff=nA*nB; 
+ u32 Neff=nA*nB;
 
  if(Neff<N && !mix){
-  //HT not needed, we use it as lookup table 
+  //HT not needed, we use it as lookup table
   for(u32 e=0;e<Neff;e++) Q->cnt[e].c=0;
   for(u32 e=0;e<N;e++){
    uint32_t _a=a[e]-1,_b=b[e]-1,hab=_a+_b*nA;
@@ -63,17 +80,17 @@ uint32_t static inline fillHt(struct ht *Q,u32 N,u32 nA,u32 *a,u32 nB,u32 *b,u32
   }
   return(Q->nAB=nAB);
  }
- 
+
  //Regular HT
  uint32_t nAB=0;
  for(u32 e=0;e<N;e++) Q->map[e]=NULL;
- 
+
  for(u32 e=0;e<N;e++){
   uint32_t _a=a[e]-1,_b=b[e]-1,hab=(_a^_b)%N;
   uint64_t _ab=MAKE_AB(_a,_b);
 
   struct hte **E;
-  for(E=Q->map+hab;(*E)&&(*E)->ab!=_ab;E=&((*E)->nxt));
+  for(E=Q->map+hab;(*E) && (*E)->ab!=_ab;E=&((*E)->nxt));
 
   if(!*E){
    Q->cnt[nAB].ab=_ab;
@@ -112,13 +129,42 @@ uint32_t static inline fillHtOne(struct ht *Q,u32 N,u32 *in,u32 *out,u32 mixOff)
  return(nAB);
 }
 
+uint32_t static inline fillHtOneMasked(
+ struct ht *Q,
+ u32 N,u32 *in,bool *mask,
+ u32 NN,u32 *out,
+ u32 mixOff
+ ){
+ uint32_t nAB=0;
+ for(u32 e=0;e<NN;e++) Q->map[e]=NULL;
+ u32 ee=0;
+ for(u32 e=0;e<N;e++) if(!mask || mask[e]){
+   uint64_t _ab=(uint64_t)(in[e]);
+   uint32_t hab=_ab%N;
+
+   struct hte **E;
+   for(E=Q->map+hab;E[0] && E[0]->ab!=_ab;E=&(E[0]->nxt));
+
+   if(!E[0]){
+    Q->cnt[nAB].ab=_ab;
+    Q->cnt[nAB].nxt=NULL;
+    E[0]=Q->cnt+nAB;
+    nAB++;
+   }
+   out[ee]=(E[0]-Q->cnt)+mixOff;
+   ee++;
+  }
+ //ASSERT ee should be NN
+ return(nAB);
+}
+
 double miHt(struct ht *Q,u32 *cA,u32 *cB){
  double ans=0.,N=Q->N;
  for(u32 e=0;e<Q->nAB;e++){
   if(!(Q->cnt[e].c)) continue;
   double cAB=Q->cnt[e].c,
-   _cA=cA[GET_A(Q->cnt[e].ab)],
-   _cB=cB[GET_B(Q->cnt[e].ab)];
+         _cA=cA[GET_A(Q->cnt[e].ab)],
+         _cB=cB[GET_B(Q->cnt[e].ab)];
   ans+=cAB*log((cAB*N)/(_cA*_cB));
  }
  return(ans/N);

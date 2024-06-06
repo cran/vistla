@@ -89,44 +89,9 @@ print.vistla_hierarchy<-function(x,...){
    "%s%s%s%s",
    sapply(x$depth+1,function(dc) paste(rep(V,dc),collapse="")),
    J,x$name,
-   ifelse(x$depth>0,sprintf(" (%0.2g)",x$score),"")
+   ifelse(x$depth>0,sprintf(" (%0.4g)",x$score),"")
   ),sep="\n")
  cat("\n")
  invisible(x)
 }
 
-#' Extract mutual information score matrix
-#'
-#' Produces a matrix \eqn{S} where \eqn{S_{ij}} is a 
-#'  value of \eqn{I(X_i;X_j)}.
-#' This matrix is always calculated as an initial step of the
-#'  vistla algorithm and stored in the vistla object.
-#' @param x vistla object.
-#' @return A symmetric square matrix with mutual information scores between features and root.
-#' @export
-mi_scores<-function(x){
- stopifnot(inherits(x,"vistla"))
- rbind(cbind(x$mi,x$miY),c(x$miY,NA))->ans
- colnames(ans)[length(x$miY)+1]<-x$yn
- rownames(ans)[length(x$miY)+1]<-x$yn
- ans
-}
-
-#' Extract leaf scores of vertex pairs
-#'
-#' Produces a matrix \eqn{S} where \eqn{S_{ij}} is a score
-#'  of the path ending in vertices \eqn{i} and \eqn{j}.
-#' Since vistla works on vertex pairs, this value is unique.
-#' This can be interpreted as a feature similarity matrix
-#'  in context of the current vistla root.
-#' @note This function should be called on an unpruned vistla tree,
-#'  otherwise the result will be mostly composed of zeroes.
-#' @param x vistla object.
-#' @return A square matrix with leaf scores of all feature pairs.
-#' @export
-leaf_scores<-function(x){
- stopifnot(inherits(x,"vistla"))
- x$mi*0->ans
- ans[as.matrix(x$tree[,c("b","c")])]<-x$tree$score
- ans
-}
