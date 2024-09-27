@@ -6,7 +6,7 @@ struct heap {
  u32 end;
 };
 
-struct heap* R_allocHeap(u32 N){
+static struct heap* R_allocHeap(u32 N){
  struct heap *ans=(struct heap*)R_alloc(sizeof(struct heap),1);
  ans->queue=(u32*)R_alloc(sizeof(u32),N);
  ans->map=(u32*)R_alloc(sizeof(u32),N);
@@ -16,19 +16,19 @@ struct heap* R_allocHeap(u32 N){
 }
 
 //resetHeap MUST be called on mallocHeap to initialise
-struct heap* mallocHeap(u32 N){
+static struct heap* mallocHeap(u32 N){
  struct heap *ans=malloc(sizeof(struct heap));
  ans->queue=malloc(sizeof(u32)*N);
  ans->map=malloc(sizeof(u32)*N);
  return(ans);
 }
 
-void resetHeap(struct heap *heap,u32 N){
+static void resetHeap(struct heap *heap,u32 N){
  for(u32 e=0;e<N;e++) heap->map[e]=NA_INTEGER;
  heap->end=0;
 }
 
-void freeHeap(struct heap *heap){
+static void freeHeap(struct heap *heap){
  free(heap->queue);
  free(heap->map);
  free(heap);
@@ -43,7 +43,7 @@ static inline u32 childA(u32 e){
 }
 
 //NOTE: Only for cB>bA tie breaking
-// algorithm is corrct.
+// algorithm is correct.
 static inline u32 childB(u32 e){
  return(2*e+2);
 }
@@ -65,14 +65,14 @@ static inline bool cmp(struct heap *h,u32 a,u32 b,double *score){
  return(sa>sb);
 }
 
-void swim(struct heap *h,u32 e,double *score){
+static void swim(struct heap *h,u32 e,double *score){
  while(e>0 && cmp(h,e,parent(e),score)){
   swap(h,e,parent(e));
   e=parent(e);
  }
 }
 
-void sink(struct heap *h,u32 e,double *score){
+static void sink(struct heap *h,u32 e,double *score){
  while(true){
   u32 max=e;
   u32 a=childA(e);
@@ -86,7 +86,7 @@ void sink(struct heap *h,u32 e,double *score){
  }
 }
 
-void update(struct heap *h,u32 e,double *score){
+static void update(struct heap *h,u32 e,double *score){
  //Like bump, but add if not already present
  if(h->map[e]==NA_INTEGER){
   h->map[e]=h->end;
@@ -96,7 +96,7 @@ void update(struct heap *h,u32 e,double *score){
  swim(h,h->map[e],score);
 }
 
-void addBreaking(struct heap *h,u32 e){
+static void addBreaking(struct heap *h,u32 e){
  //Push element breaking heap.
  //Heapify must be called after this, before
  // any pops, etc. Use for transactional push.
@@ -105,11 +105,11 @@ void addBreaking(struct heap *h,u32 e){
  h->end++;
 }
 
-u32 heapLen(struct heap *h){
+static u32 heapLen(struct heap *h){
  return(h->end);
 }
 
-void heapify(struct heap *h,double *score){
+static void heapify(struct heap *h,double *score){
  //Array with 0 or 1 element is already a heap
  if(h->end>1) for(u32 r=(h->end+1)/2+1;r<=h->end;r++){
    u32 e=h->end-r;
@@ -117,7 +117,7 @@ void heapify(struct heap *h,double *score){
   }
 }
 
-u32 pop(struct heap *h,double *score){
+static u32 pop(struct heap *h,double *score){
  u32 ans=h->queue[0];
  swap(h,0,h->end-1);
  h->end--;
@@ -126,7 +126,7 @@ u32 pop(struct heap *h,double *score){
  return(ans);
 }
 
-u32 selTied(struct heap *h,double *score,struct rng *rng){
+static u32 selTied(struct heap *h,double *score,struct rng *rng){
  double rs=score[h->queue[0]];
  u32 tag=random_int(rng);
  u32 sel=0;
@@ -144,7 +144,7 @@ u32 selTied(struct heap *h,double *score,struct rng *rng){
  return(sel);
 }
 
-bool isTied(struct heap *h,double *score){
+static bool isTied(struct heap *h,double *score){
  double rs=score[h->queue[0]];
  return(
   ((1<h->end) && (score[h->queue[1]]==rs)) ||
@@ -152,11 +152,11 @@ bool isTied(struct heap *h,double *score){
   );
 }
 
-void breakTie(struct heap *h,double *score,struct rng *rng){
+static void breakTie(struct heap *h,double *score,struct rng *rng){
  swap(h,0,selTied(h,score,rng));
 }
 
-bool integrity_test(struct heap *h,double *score){
+static bool integrity_test(struct heap *h,double *score){
  bool map_integral=true;
  for(u32 e=0;e<h->end;e++) map_integral&=(h->map[h->queue[e]]==e);
  if(!map_integral) error("FATAL: Map has lost integrity!");

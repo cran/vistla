@@ -82,7 +82,7 @@ path_to<-function(x,target,detailed=FALSE){
  ans
 }
 
-#Implemantation for vistla_hierarchy
+#Implementation for vistla_hierarchy
 path_to_h<-function(x,target,detailed){
  idx<-which(x$name==target & x$leaf)
  if(length(idx)<1)

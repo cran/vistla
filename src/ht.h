@@ -18,7 +18,7 @@ struct hte {
  u32 c;
 };
 
-struct ht* R_allocHt(u32 N){
+static struct ht* R_allocHt(u32 N){
  struct ht *ans=(struct ht*)R_alloc(sizeof(struct ht),1);
  ans->N=N;
  ans->map=(struct hte**)R_alloc(sizeof(struct hte*),N);
@@ -26,7 +26,7 @@ struct ht* R_allocHt(u32 N){
  return(ans);
 }
 
-struct ht* mallocHt(u32 N){
+static struct ht* mallocHt(u32 N){
  struct ht *ans=malloc(sizeof(struct ht));
  ans->N=N;
  ans->map=malloc(sizeof(struct hte*)*N);
@@ -34,7 +34,7 @@ struct ht* mallocHt(u32 N){
  return(ans);
 }
 
-void freeHt(struct ht* ht){
+static void freeHt(struct ht* ht){
  free(ht->map);
  free(ht->cnt);
  free(ht);
@@ -158,7 +158,7 @@ uint32_t static inline fillHtOneMasked(
  return(nAB);
 }
 
-double miHt(struct ht *Q,u32 *cA,u32 *cB){
+double static miHt(struct ht *Q,u32 *cA,u32 *cB){
  double ans=0.,N=Q->N;
  for(u32 e=0;e<Q->nAB;e++){
   if(!(Q->cnt[e].c)) continue;

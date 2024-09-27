@@ -27,7 +27,7 @@ enum flow {
  noroam=16
 };
 
-enum flow verify_flow(u32 x){
+static enum flow verify_flow(u32 x){
  if(x>31) error("Wrong value of the flow");
  if((x&hillup) && (x&hilldown))error("Cannot hill up and down at the same time");
  if(((x&hillup)|(x&hilldown))&(x&noroam)){
@@ -48,21 +48,21 @@ struct rng {
  u64 stream;
 };
 
-u32 random_int(struct rng *rng){
+static u32 random_int(struct rng *rng){
  rng->state=rng->state*6364136223846793005+rng->stream;
  u32 rot=(rng->state)>>59;
  u32 s=(((rng->state)>>18)^(rng->state))>>27;
  return((s<<((-rot)&31))|(s>>rot));
 }
 
-void set_rng(struct rng *rng,u64 seed,u64 stream){
+static void set_rng(struct rng *rng,u64 seed,u64 stream){
  rng->state=rng->stream=stream*2+1;
  rng->state+=seed;
  random_int(rng);
 }
 
 //Sync PRNG with R; R will feel only two numbers were generated
-void set_from_r(struct rng *rng){
+static void set_from_r(struct rng *rng){
  GetRNGstate();
  u64 a=(u32)(((double)(~((u32)0)))*unif_rand());
  u64 b=(u32)(((double)(~((u32)0)))*unif_rand());
@@ -72,7 +72,7 @@ void set_from_r(struct rng *rng){
 }
 
 //Fast & unbiased algorithm by Daniel Lemire https://arxiv.org/pdf/1805.10941.pdf
-u32 random_index(struct rng *rng,u32 upto){
+static u32 random_index(struct rng *rng,u32 upto){
  u32 x=random_int(rng);
  u64 m=((u64)x)*((u64)upto);
  u32 l=((u32)m);

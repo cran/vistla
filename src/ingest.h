@@ -1,5 +1,5 @@
 /*
-   Internal representaiton of the input
+   Internal representation of the input
    The basic idea goes this way:
    ingest* functions convert SEXP to struct features
    they can error, hence they only use Ralloc
@@ -39,7 +39,7 @@ static inline bool is_double(struct feature *f){
  return(!(integer&(f->state)));
 }
 
-bool isBinaryFactor(SEXP x){
+static bool isBinaryFactor(SEXP x){
  if(!isFactor(x)) return(false);
  u32 l=length(getAttrib(x,R_LevelsSymbol));
  return((l==2) || (l==1)); //We accept constant factors, though they are useless
@@ -64,7 +64,7 @@ bool isBinaryFactor(SEXP x){
 
 //These function may error
 
-struct feature* ingestSEXP_mle(u32 n,SEXP in){
+static struct feature* ingestSEXP_mle(u32 n,SEXP in){
  if(length(in)!=n) error("Incorrect feature length");
  if(isFactor(in) || isLogical(in)){
   //Integer-alike which needs collapsing into 1..n_levels
@@ -81,11 +81,11 @@ struct feature* ingestSEXP_mle(u32 n,SEXP in){
   }
   return(ans);
  }
- error("Only logical and factor inputs are acccepted with the MLE estimator");
+ error("Only logical and factor inputs are accepted with the MLE estimator");
  return(NULL); //Unreachable
 }
 
-struct feature* ingestSEXP_kt(u32 n,SEXP in){
+static struct feature* ingestSEXP_kt(u32 n,SEXP in){
  if(length(in)!=n) error("Incorrect feature length");
  if(n>65536) error("Kendall transformation covers only up to 2^16 elements");
  if(n<2) error("Kendall transformation requires at least 2 objects");
@@ -118,7 +118,7 @@ struct feature* ingestSEXP_kt(u32 n,SEXP in){
 }
 
 //TODO: Make this Fisher-Yates
-bool* count_mask(u32 n,struct rng *rng,u32 count){
+static bool* count_mask(u32 n,struct rng *rng,u32 count){
  bool *ans=malloc(sizeof(bool)*n);
  bool ds=false;
  if(count>n/2){
@@ -136,7 +136,7 @@ bool* count_mask(u32 n,struct rng *rng,u32 count){
  return(ans);
 }
 
-bool* boot_mask(u32 n,struct rng *rng,u32 *count){
+static bool* boot_mask(u32 n,struct rng *rng,u32 *count){
  //ASSERT n>=2
  bool *ans=malloc(sizeof(bool)*n);
  *count=0;
@@ -152,7 +152,7 @@ bool* boot_mask(u32 n,struct rng *rng,u32 *count){
  return(ans);
 }
 
-u32 *which_mask(u32 n,bool *mask,u32 nn){
+static u32 *which_mask(u32 n,bool *mask,u32 nn){
  u32 *ans=malloc(sizeof(u32)*nn);
  u32 ee=0;
  for(u32 e=0;e<n;e++) if(!mask || mask[e]){
@@ -162,7 +162,7 @@ u32 *which_mask(u32 n,bool *mask,u32 nn){
  return(ans);
 }
 
-u32* produce_mle(u32 *in,struct ht *ht,u32 n,u32 nn,bool *mask,u32 *nx){//Mask & collapse
+static u32* produce_mle(u32 *in,struct ht *ht,u32 n,u32 nn,bool *mask,u32 *nx){//Mask & collapse
  u32 *ans=malloc(sizeof(u32)*nn);
  *nx=fillHtOneMasked(ht,n,in,mask,nn,ans,1);
  return(ans);
@@ -187,7 +187,7 @@ static inline u32 code(void *x,bool is_double,u32 e,u32 ee){
 //Idx has to be made from mask by which_mask & re-used in the KT case;
 // regular mask is good for sequential read, and here we need random
 // access. Still, we don't use ht here to collapse.
-u32* produce_kt(void *in,bool is_double,u32 nn,u32 *idx,u32 *nx){
+static u32* produce_kt(void *in,bool is_double,u32 nn,u32 *idx,u32 *nx){
  bool recode_to_a=code(in,is_double,0,1)==3;
  *nx=recode_to_a?1:2;
  //Coding a is =<>, can be = for const

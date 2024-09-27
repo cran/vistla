@@ -13,7 +13,7 @@ ensemble(n = 30, resample = TRUE, prune = 0)
 \item{n}{number of replicatons.}
 
 \item{resample}{if \code{TRUE}, a modified bootstrap is used; that is, algorithm draws as many objects as are in the original data, but with replacement, hence only about 63.2% of objects remain. Though, in vistla objects are deduplicated to avoid estimation quirks.
-If this argument is given a number, it is interpreted to randomly sample exacly this fraction of objects, without replacement.
+If this argument is given a number, it is interpreted to randomly sample exactly this fraction of objects, without replacement.
 Fraction \code{f} of \code{n} objects is interpreted as \code{round(n*f)}, but not less than 3 and no more than \code{n-1}.
 If \code{FALSE}, no resampling is done (vistla trees are just built using different random seeds.}
 

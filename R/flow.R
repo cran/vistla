@@ -20,8 +20,8 @@
 #'  in practice, a single integer value.
 #' @export
 flow<-function(code,...,from=TRUE,into=FALSE,down,up,forcepath){
- codes<-c('from'=1L,'from!'=17L,'into'=2L,'into!'=18L,'spread'=0L,'spread!'=16L,
-  'fromdown'=1L+8L,'both'=3L,'both!'=3L+16L,'intoup'=2L+4L,'down'=8L,'up'=4L)
+ codes<-c('from'=2L,'from!'=18L,'into'=1L,'into!'=17L,'spread'=0L,'spread!'=16L,
+  'fromdown'=2L+8L,'both'=3L,'both!'=3L+16L,'intoup'=1L+4L,'down'=8L,'up'=4L)
  if(!missing(code)){
   ans<-if(is.integer(code)) code else {
    if(is.character(code)){
@@ -34,7 +34,7 @@ flow<-function(code,...,from=TRUE,into=FALSE,down,up,forcepath){
   if(missing(up)) up<-into & !from
   if(missing(forcepath)) forcepath<-!up & !down
   ans<-as.integer(sum(
-   c(from,into,up,down,forcepath)*
+   c(into,from,up,down,forcepath)*
    2^(0:4)
   ))
  }
@@ -44,7 +44,7 @@ flow<-function(code,...,from=TRUE,into=FALSE,down,up,forcepath){
 
 flow2char<-function(x)
  paste(
-  c("spread","from","into","both")[bitwAnd(x,3L)+1],
+  c("spread","into","from","both")[bitwAnd(x,3L)+1],
   ifelse(bitwAnd(x,4L)>0,"up",""),
   ifelse(bitwAnd(x,8L)>0,"down",""),
   ifelse(bitwAnd(x,16L)>0,"!",""),

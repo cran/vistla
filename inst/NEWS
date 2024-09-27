@@ -1,3 +1,10 @@
+Changes in 2.0.3:
+ - Fixed the flow generator, which used
+ to mix `from` with `into` constraint.
+ - Updates to the example data sets.
+ - Portable version of the algorithm
+ exposed as a C library.
+
 Changes in 2.0.2:
  - Changes in the example datasets to 
  make documentation more consistent.

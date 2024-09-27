@@ -1,4 +1,4 @@
-u32 vistla(
+static u32 vistla(
  u32 **x,u32 *nx,u32 *y,u32 ny,u32 m,u32 n, /*Dataset*/
  struct ht **ht, /*Hash tables */ struct rng *rng,
  int nt, /*Thread count*/ int verbose, double iomin, enum flow flow,
@@ -142,7 +142,7 @@ u32 vistla(
     if((flow&hilldown) && !(miY[b]>miY[c])) continue;
     if((flow&hillup) && !(mi[c+b*m]>miY[c])) continue;
 
-    //Chek the no-roam (no sense with hill present)
+    //Check the no-roam (no sense with hill present)
     if(flow&noroam){
      u32 haveToBackOff=0;
      u32 back_bc=P[a+b*m];

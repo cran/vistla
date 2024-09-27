@@ -20,11 +20,13 @@
 #' Synthetic data representing a junction
 #'
 #' Junction is a model of a multimodal agent, a variable that is an element of multiple separate paths.
-#' Here, these paths are \eqn{A_1\rightarrow J \rightarrow A_2} and 
-#' \eqn{B_1\rightarrow J \rightarrow B_2,}
+#' Here, these paths are 
+#' \eqn{Y\rightarrow A_1\rightarrow A_2\rightarrow J \rightarrow A_3}
+#' and 
+#' \eqn{Y\rightarrow B_1\rightarrow B_2\rightarrow J \rightarrow B_3,}
 #' while \eqn{J} is the junction.
-#' The set consists of 12 observations, and is tuned to be easily deciphered.
-#' @format A data set with five factor columns.
+#' The set consists of 50 observations.
+#' @format A data set with eight factor columns.
 #' @usage data(junction)
 "junction"
 

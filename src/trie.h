@@ -8,7 +8,7 @@ struct vertex {
  struct vertex *dwn;
 };
 
-struct vertex* append(struct vertex *a,struct vertex *appended,struct vertex **head){
+static struct vertex* append(struct vertex *a,struct vertex *appended,struct vertex **head){
  if(!a){
   *head=appended;
  }else{
@@ -18,7 +18,7 @@ struct vertex* append(struct vertex *a,struct vertex *appended,struct vertex **h
  return(appended);
 }
 
-struct vertex* behead(struct vertex **x){
+static struct vertex* behead(struct vertex **x){
  struct vertex* ans=*x;
  *x=ans->nxt;
  if(*x){
@@ -28,7 +28,7 @@ struct vertex* behead(struct vertex **x){
  return(ans);
 }
 
-struct vertex* merge(struct vertex *a,struct vertex *b){
+static struct vertex* merge(struct vertex *a,struct vertex *b){
  struct vertex *ans=NULL;
  struct vertex *cur=ans;
  while(a!=NULL || b!=NULL){
@@ -58,7 +58,7 @@ struct vertex* merge(struct vertex *a,struct vertex *b){
 }
 
 //There are two copies of this stuff; this one is actually useful and calculates prv
-u32 count_vtx(struct vertex *a){
+static u32 count_vtx(struct vertex *a){
  u32 c=0;
  while(a){
   c+=1+count_vtx(a->dwn);
@@ -66,7 +66,7 @@ u32 count_vtx(struct vertex *a){
  }
  return(c);
 }
-void encode_vtx(struct vertex *a,int *ti,int *ts,int *td,int *tp,int depth,u32 *idx,u32 prv){
+static void encode_vtx(struct vertex *a,int *ti,int *ts,int *td,int *tp,int depth,u32 *idx,u32 prv){
  while(a){
   u32 e=*idx;
   (*idx)++;
@@ -79,7 +79,7 @@ void encode_vtx(struct vertex *a,int *ti,int *ts,int *td,int *tp,int depth,u32 *
  }
 }
 
-SEXP trie_toR(struct vertex *a){
+static SEXP trie_toR(struct vertex *a){
  //+1 for the root element
  u32 vn=count_vtx(a)+1;
  SEXP Tree=PROTECT(allocVector(VECSXP,5)),
@@ -113,7 +113,7 @@ SEXP trie_toR(struct vertex *a){
  return(Tree);
 }
 
-void free_vtx(struct vertex *a){
+static void free_vtx(struct vertex *a){
  while(a){
   if(a->dwn) free_vtx(a->dwn);
   struct vertex *tmp=a;
@@ -122,7 +122,7 @@ void free_vtx(struct vertex *a){
  }
 }
 
-struct vertex* array_into(u32 n,u32 *values){
+static struct vertex* array_into(u32 n,u32 *values){
  struct vertex *v=NULL,*vn;
  for(u32 e=n;e>0;e--){
   vn=malloc(sizeof(struct vertex));
@@ -136,7 +136,7 @@ struct vertex* array_into(u32 n,u32 *values){
  return(v);
 }
 
-struct vertex* prune_low_count(struct vertex *a,u32 count_limit){
+static struct vertex* prune_low_count(struct vertex *a,u32 count_limit){
  struct vertex *o=a;
  while(a){
   if(a->dwn) a->dwn=prune_low_count(a->dwn,count_limit);
@@ -155,7 +155,7 @@ struct vertex* prune_low_count(struct vertex *a,u32 count_limit){
  return(o);
 }
 
-struct vertex* find_or_insert(struct vertex **ar,u32 key){
+static struct vertex* find_or_insert(struct vertex **ar,u32 key){
  struct vertex *ans;
  struct vertex *a=*ar;
  if(!a){
@@ -204,7 +204,7 @@ struct vertex* find_or_insert(struct vertex **ar,u32 key){
 
 }
 
-struct vertex* from_vistla_tree(u32 n,u32 *ta,u32 *tb,u32 *tc,u32 *tp,Rboolean *tu,Rboolean *tl){
+static struct vertex* from_vistla_tree(u32 n,u32 *ta,u32 *tb,u32 *tc,u32 *tp,Rboolean *tu,Rboolean *tl){
  struct vertex **pvs=malloc(sizeof(struct vertex)*n);
  struct vertex *root=malloc(sizeof(struct vertex));
  root->count=0;

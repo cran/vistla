@@ -63,7 +63,7 @@ vistla.data.frame<-function(x,y,...,flow,iomin,targets,estimator=c("mle","kt"),v
  targets<-if(!missing(targets))
   unique(match(targets,names(x))) else integer(0)
  if(any(is.na(targets))) stop("Unknown variables specified as targets")
- if(missing(flow)) flow<-1L+8L
+ if(missing(flow)) flow<-10L
  if(is.character(flow)) flow<-vistla::flow(flow)
  if(missing(iomin)) iomin<-0
  if(missing(threads)) threads<-0L

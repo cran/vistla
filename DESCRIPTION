@@ -1,6 +1,6 @@
 Package: vistla
 Title: Detecting Influence Paths with Information Theory
-Version: 2.0.2
+Version: 2.0.3
 Authors@R: c(
   person(
    c("Miron","B."),"Kursa",
@@ -20,8 +20,8 @@ RoxygenNote: 7.3.1
 Depends: R (>= 3.5.0)
 Imports: grid
 NeedsCompilation: yes
-Packaged: 2024-06-06 16:23:35 UTC; mbq
+Packaged: 2024-09-27 11:55:33 UTC; mbq
 Author: Miron B. Kursa [aut, cre] (<https://orcid.org/0000-0001-7672-648X>)
 Maintainer: Miron B. Kursa <m@mbq.me>
 Repository: CRAN
-Date/Publication: 2024-06-06 16:50:02 UTC
+Date/Publication: 2024-09-27 18:00:02 UTC
