@@ -1,3 +1,7 @@
+Changes in 2.0.4:
+ - Documentation updates following
+ publication of the method's paper.
+
 Changes in 2.0.3:
  - Fixed the flow generator, which used
  to mix `from` with `into` constraint.

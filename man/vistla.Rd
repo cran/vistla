@@ -86,5 +86,7 @@ Detects influence paths.
 The ensemble mode is both faster and makes better use of multithreading than replicating vistla manually.
 }
 \references{
+"Vistla: identifying influence paths with information theory" M.B. Kursa. Bioinformatics btaf036 (2025).
+
 "Kendall transformation brings a robust categorical representation of ordinal data" M.B. Kursa. SciRep 12, 8341 (2022).
 }

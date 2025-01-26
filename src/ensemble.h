@@ -7,8 +7,6 @@ SEXP C_vistlaEnsemble(SEXP X,SEXP Y,SEXP Flow,SEXP Estimator,SEXP Threshold,SEXP
  if(m==0) error("X has no columns to trace through");
  u32 n=length(VECTOR_ELT(X,0));
  if(n!=length(Y)) error("X and Y size mismatch");
- //TODO: Redundant
- if(n>46341 && estimator==kt) error("KT works up to 46341 objects");
 
  if(length(Ensemble)!=3) error("Invalid replication options, Ens len is %d",length(Ensemble));
  int *ens=(int*)INTEGER(Ensemble);
@@ -23,7 +21,6 @@ SEXP C_vistlaEnsemble(SEXP X,SEXP Y,SEXP Flow,SEXP Estimator,SEXP Threshold,SEXP
 
  if(isInteger(Threads) && length(Threads)!=1) error("Invalid threads argument");
  u32 nt=asInteger(Threads);
- //TODO: Tune threads number so that it is not about m, but rather < m/<small const like 4>
  if(nt<0) error("Invalid threads argument");
  if(nt>omp_get_max_threads()){
   nt=omp_get_max_threads();
@@ -91,7 +88,8 @@ SEXP C_vistlaEnsemble(SEXP X,SEXP Y,SEXP Flow,SEXP Estimator,SEXP Threshold,SEXP
    rng.stream=2*i+1;
    //Actually coerce data
    u32 nn=n;
-   //TODO: If not bootstrap, make them earlier and once, for all threads
+   //For no-bootstrap, they could be made earlier and once, for all threads;
+   // but given this is rarely used and gains are not huge, it is left as it is.
    u32 **x=malloc(sizeof(u32*)*m),
        *nx=malloc(sizeof(u32)*m),
        *y=NULL,ny;

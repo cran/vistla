@@ -75,7 +75,6 @@ static struct feature* ingestSEXP_mle(u32 n,SEXP in){
   for(int e=0;e<n;e++){
    if(((u32*)(ans->x))[e]==NA_INTEGER){
     ans->state=ans->state&has_missing;
-    //TODO: Till we figure out NAs
     error("NAs are not accepted");
    }
   }
@@ -117,7 +116,6 @@ static struct feature* ingestSEXP_kt(u32 n,SEXP in){
  return(NULL); //Unreachable
 }
 
-//TODO: Make this Fisher-Yates
 static bool* count_mask(u32 n,struct rng *rng,u32 count){
  bool *ans=malloc(sizeof(bool)*n);
  bool ds=false;
@@ -136,8 +134,8 @@ static bool* count_mask(u32 n,struct rng *rng,u32 count){
  return(ans);
 }
 
+//This could be more optimised, but the gains are probably not worth it
 static bool* boot_mask(u32 n,struct rng *rng,u32 *count){
- //ASSERT n>=2
  bool *ans=malloc(sizeof(bool)*n);
  *count=0;
  for(u32 e=0;e<n;e++) ans[e]=false;
@@ -148,7 +146,6 @@ static bool* boot_mask(u32 n,struct rng *rng,u32 *count){
    (*count)++;
   }
  }
-
  return(ans);
 }
 

@@ -1,0 +1,12 @@
+citHeader("To cite vistla in publications use:")
+
+bibentry(
+  bibtype      = "Article",
+  title        = "Vistla: identifying influence paths with information theory",
+  author       = person("Miron B. Kursa"),
+  journal      = "Bioinformatics",
+  year         = "2025",
+  volume       = "btaf036",
+  url          = "https://doi.org/10.1093/bioinformatics/btaf036"
+)
+

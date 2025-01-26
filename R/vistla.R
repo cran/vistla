@@ -56,6 +56,7 @@ vistla.formula<-function(formula,data,...,yn){
 #' 
 #'  When \code{ensemble} argument is given, a hierarchy object with the scored being counts of times certain path was present among the replicated ensemble, possibly pruned. 
 #' @note The ensemble mode is both faster and makes better use of multithreading than replicating vistla manually.
+#' @references "Vistla: identifying influence paths with information theory" M.B. Kursa. Bioinformatics btaf036 (2025).
 #' @references "Kendall transformation brings a robust categorical representation of ordinal data" M.B. Kursa. SciRep 12, 8341 (2022).
 #' @method vistla data.frame
 #' @export
