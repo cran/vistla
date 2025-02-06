@@ -54,9 +54,8 @@ The default value of 0 turns of this filtering.
 The same effect can be later achieved with the \code{\link{prune}} function.}
 
 \item{targets}{a vector of target feature names.
-If given, the algorithm will stop just after reaching the last of them, rather than after tracing all paths from the root.
-The same effect can be later achieved with the \code{\link{prune}} function.
-This is a simple method to remove irrelevant paths, yet it comes with a substantial increase in computational burden.}
+If given, the algorithm will stop just after reaching the last feature from this list, rather than after tracing paths to all targets.
+The same effect can be later achieved with the \code{\link{prune}} function, but restricting targets here saves computational time.}
 
 \item{estimator}{mutual information estimator to use.
 \code{"mle"} --- maximal likelihood, requires all features to be discrete (factors or booleans).

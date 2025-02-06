@@ -1,3 +1,23 @@
+Changes in 2.1.0:
+ - Function collapse() to generate
+ pairwise graphs from vistla trees.
+ - By default, i.e., when targets
+ argument is missing, vistla assumes
+ that it is a list of all features.
+ Hence, the algorithm does not trace
+ suboptimal paths (like ...->X->Y
+ when ...->Z->Y is wider) anymore.
+ These paths were rejected by most
+ downstream processing, thus most
+ users will only see faster processing.
+ - The leaf_scores() function only
+ made sense when suboptimal paths
+ were traced, so it got removed.
+ The usefulness of it was limited,
+ though, it is a better idea to use
+ ensembles to analyse alternative paths.
+ - Package vignette.
+
 Changes in 2.0.4:
  - Documentation updates following
  publication of the method's paper.

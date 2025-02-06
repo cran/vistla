@@ -119,6 +119,7 @@ static u32 vistla(
   if(t && t[b]){
    t[b]=false;
    ntargets--;
+   if(verbose) Rprintf("Targets even used! Left: %d\n",ntargets);
    if(!ntargets){
     if(verbose) Rprintf("Target list exhausted, breaking search\n");
     break;

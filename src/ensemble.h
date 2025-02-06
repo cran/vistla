@@ -46,10 +46,9 @@ SEXP C_vistlaEnsemble(SEXP X,SEXP Y,SEXP Flow,SEXP Estimator,SEXP Threshold,SEXP
  if(iomin<0) error("Threshold must be at lest 0");
 
  int ntargets=length(Targets);
- bool *t=NULL;
+ bool *t=(bool*)R_alloc(sizeof(bool),m);
  if(ntargets>0){
   int *vt=INTEGER(Targets);
-  t=(bool*) R_alloc(sizeof(bool),m);
   for(int e=0;e<m;e++) t[e]=false;
   //Convert index vector into a mask; also 1-based to 0-based
   for(int e=0;e<ntargets;e++){
@@ -57,7 +56,8 @@ SEXP C_vistlaEnsemble(SEXP X,SEXP Y,SEXP Flow,SEXP Estimator,SEXP Threshold,SEXP
    t[vt[e]-1]=true;
   }
  }else{
-  //Left as a flag
+ //Synth a vector of all-true
+  for(int e=0;e<m;e++) t[e]=true;
   ntargets=m;
  }
 

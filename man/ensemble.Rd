@@ -10,15 +10,15 @@ ensemble(n = 30, resample = TRUE, prune = 0)
 \method{print}{vistla_ensemble_control}(x, ...)
 }
 \arguments{
-\item{n}{number of replicatons.}
+\item{n}{number of replications.}
 
 \item{resample}{if \code{TRUE}, a modified bootstrap is used; that is, algorithm draws as many objects as are in the original data, but with replacement, hence only about 63.2% of objects remain. Though, in vistla objects are deduplicated to avoid estimation quirks.
 If this argument is given a number, it is interpreted to randomly sample exactly this fraction of objects, without replacement.
 Fraction \code{f} of \code{n} objects is interpreted as \code{round(n*f)}, but not less than 3 and no more than \code{n-1}.
 If \code{FALSE}, no resampling is done (vistla trees are just built using different random seeds.}
 
-\item{prune}{Minimal number of iterations in which certain branch must appear not be prunned during ensemble consolidation.
-Zero (default) means no prunning.
+\item{prune}{Minimal number of iterations in which certain branch must appear not be pruned during ensemble consolidation.
+Zero (default) means no pruning.
 Note that \code{iomin} and \code{targets} arguments of the base algorithm can also be used to control the size of the resulting consensus tree.}
 
 \item{x}{ensemble control value to print.}
