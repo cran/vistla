@@ -1,4 +1,4 @@
-5d43fc52e9cd473d6843c3587f3835e9 *DESCRIPTION
+1f2657bead323e0ed1138cd4241941ae *DESCRIPTION
 712684070277a9c0320d209abbf86d93 *NAMESPACE
 d1301c6b2956889fb45ee6acd9d6bdfb *R/coerce.R
 4475638c800309eefc5fdf85461fa953 *R/collapse.R
@@ -18,10 +18,10 @@ db3669fde2a1a80a576d317c377b5f87 *build/vignette.rds
 ac6dd568c5b6e52cee0f6fc588c415db *data/chain.rda
 217464fc2a36d3aa37110cf0d33d5245 *data/junction.rda
 18799beffa74670af44b8bbfd935c09d *inst/CITATION
-320c33a131b07b6e41415571ebe550db *inst/NEWS
-9e38b364e040c468633c938950e5f87e *inst/doc/walkthrough.R
-d5795a6231b175d41ef96b8a8b48a4d6 *inst/doc/walkthrough.Rnw
-b6f76b3cd1b9cfd081291013821c7adf *inst/doc/walkthrough.pdf
+797b57e2e52b3cb206f19da519f07668 *inst/NEWS
+a446920690e565fdcb54b930bb81d04e *inst/doc/walkthrough.R
+1d29ae8938f5d805d0f0c375be627fe8 *inst/doc/walkthrough.Rnw
+73999a0e24e5c3a11e36657e2cdbb797 *inst/doc/walkthrough.pdf
 93f3ed350cd43a5da1914c3208f7d670 *man/branches.Rd
 766c883ab0a788138c9828124d699f6b *man/cchain.Rd
 d633d9e0e7f5cda37a331c7677a793a9 *man/chain.Rd
@@ -52,5 +52,5 @@ b366a78c6eb1fac56ff4093a290a2198 *man/prune.Rd
 71cbff7527632492eeb3823c637f3ceb *src/vistla.h
 65cd27365be7070ab97ae3feadb2250a *tests/cran.R
 03b23e6d599e3d55d215e94260a20fe8 *vignettes/f1.pdf
-74c2302ebdf6da5ca231fb4784b8d2d2 *vignettes/vig.bib
-d5795a6231b175d41ef96b8a8b48a4d6 *vignettes/walkthrough.Rnw
+f8c2776057585ed10bbfa3b09673f01e *vignettes/vig.bib
+1d29ae8938f5d805d0f0c375be627fe8 *vignettes/walkthrough.Rnw

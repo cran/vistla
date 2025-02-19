@@ -2,8 +2,6 @@
 %\VignetteIndexEntry{Vistla walkthrough}
 \usepackage[utf8]{inputenc}
 \usepackage[bookmarks]{hyperref}
-\usepackage{biblatex}
-\bibliography{vig}
 \usepackage[top=1.5cm,bottom=1.5cm,left=2cm,right=2cm]{geometry}
 
 <<seed,echo=FALSE>>=
@@ -47,7 +45,7 @@ Vistla can also solve the reverse problem, i.e., when the information in the anc
 \section{Usage}
 
 \subsection{Prerequisites}
-The \texttt{vistla} package can be obtained from CRAN~\cite{kursa2022vistla}, preferably using built-in R package installation mechanisms, for instance with the command
+The \texttt{vistla} package can be obtained from CRAN, preferably using built-in R package installation mechanisms, for instance with the command
 <<install,eval=FALSE>>=
 install.packages("vistla")
 @
@@ -162,7 +160,7 @@ plot(vistla_kt)
 @
 
 \noindent In this case, the result also exactly recreates the simulated network.
-More portable KT implementation is available in the \texttt{praznik} package~\cite{kursa2017prazni,kursa2021Prazni}.
+More portable KT implementation is available in the \texttt{praznik} package~\cite{kursa2021Prazni}.
 
 KT does not properly estimate information of highly non-monotonic relationships, though; if they are of interest, one should consider some discretisation approach. 
 
@@ -221,7 +219,8 @@ For small sets, full resample may be too harsh and destabilise the method beyond
 
 Refer to the package manual (\texttt{?ensemble}) for more information.
 
-\printbibliography
+\bibliographystyle{plain}
+\bibliography{vig}
 
 \vspace{1cm}
 \begin{center}
